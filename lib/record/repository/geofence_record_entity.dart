@@ -17,6 +17,26 @@ class GeofenceRecordEntity {
     required this.sendMachine,
   });
 
+  GeofenceRecordEntity copyWith({
+    int? id,
+    int? geofenceId,
+    String? geofenceName,
+    String? message,
+    String? recipients,
+    DateTime? createdAt,
+    SendMachine? sendMachine,
+  }) {
+    return GeofenceRecordEntity(
+      id: id ?? this.id,
+      geofenceId: geofenceId ?? this.geofenceId,
+      geofenceName: geofenceName ?? this.geofenceName,
+      message: message ?? this.message,
+      recipients: recipients ?? this.recipients,
+      createdAt: createdAt ?? this.createdAt,
+      sendMachine: sendMachine ?? this.sendMachine,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

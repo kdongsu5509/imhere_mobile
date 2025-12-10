@@ -71,6 +71,7 @@ dev_dependencies:
   # 테스트
   coverage: ^1.15.0 # 테스트 커버리지 측정
   mockito: ^5.5.0 # 테스트용 MOCK 객체 생성
+  sqflite_common_ffi: ^2.3.4 # SQLite 테스트용
 
 # The following section is specific to Flutter packages.
 flutter:
