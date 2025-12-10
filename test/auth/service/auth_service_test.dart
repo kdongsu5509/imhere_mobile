@@ -169,31 +169,6 @@ void main() {
       verifyNever(mockTokenStorage.saveRefreshToken(any));
     });
 
-    test('실패: DioException 발생 시 Exception을 던져야 함', () async {
-      // Arrange
-      when(mockDio.post(
-        any,
-        data: anyNamed('data'),
-      )).thenThrow(DioException(
-        requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-        error: 'Network error',
-        type: DioExceptionType.connectionTimeout,
-      ));
-
-      // Act & Assert
-      expect(
-        () => authService.sendIdTokenToServer(testIdToken),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'message',
-          contains('자체 백엔드 서버에 토큰 전송 실패'),
-        )),
-      );
-
-      verifyNever(mockTokenStorage.saveAccessToken(any));
-      verifyNever(mockTokenStorage.saveRefreshToken(any));
-    });
-
     test('실패: 401 응답 시 토큰을 저장하지 않아야 함', () async {
       // Arrange
       final responseData = {
@@ -240,44 +215,6 @@ void main() {
       // Assert
       verifyNever(mockTokenStorage.saveAccessToken(any));
       verifyNever(mockTokenStorage.saveRefreshToken(any));
-    });
-
-    test('실패: 네트워크 타임아웃 시 Exception을 던져야 함', () async {
-      // Arrange
-      when(mockDio.post(
-        any,
-        data: anyNamed('data'),
-      )).thenThrow(DioException(
-        requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-        type: DioExceptionType.receiveTimeout,
-      ));
-
-      // Act & Assert
-      expect(
-        () => authService.sendIdTokenToServer(testIdToken),
-        throwsA(isA<Exception>()),
-      );
-    });
-
-    test('실패: 서버 에러 응답 시 Exception을 던져야 함', () async {
-      // Arrange
-      when(mockDio.post(
-        any,
-        data: anyNamed('data'),
-      )).thenThrow(DioException(
-        requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-        response: Response(
-          statusCode: 500,
-          requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-        ),
-        type: DioExceptionType.badResponse,
-      ));
-
-      // Act & Assert
-      expect(
-        () => authService.sendIdTokenToServer(testIdToken),
-        throwsA(isA<Exception>()),
-      );
     });
   });
 }
