@@ -1,3 +1,0 @@
-[warning] The declaration '_$LoginReqeustDtoFromJson' isn't referenced (C:\Project\ImHereMobile\lib\auth\service\dto\login_request_dto.g.dart:9:17)
-[info] Constructors in '@immutable' classes should be declared as 'const' (C:\Project\ImHereMobile\lib\common\view_component\page_title.dart:12:3)
-[warning] The declaration '_$FcmTokenFromJson' isn't referenced (C:\Project\ImHereMobile\lib\fcm\repository\dto\fcm_token.g.dart:9:10)
