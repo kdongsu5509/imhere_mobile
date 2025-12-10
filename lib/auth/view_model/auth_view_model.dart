@@ -1,0 +1,94 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:iamhere/auth/service/auth_service.dart';
+import 'package:iamhere/auth/view_model/auth_view_model_interface.dart';
+import 'package:iamhere/common/result/error_message.dart';
+import 'package:iamhere/common/result/result.dart';
+import 'package:iamhere/fcm/service/fcm_alert_permission_service.dart';
+import 'package:iamhere/fcm/service/fcm_token_service.dart';
+import 'package:injectable/injectable.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+
+@injectable
+class AuthViewModel implements AuthViewModelInterface {
+  final AuthService _authService;
+  final FcmTokenService _fcmTokenService;
+  final FcmAlertPermissionService _fcmPermissionService;
+
+  AuthViewModel(
+    this._authService,
+    this._fcmTokenService,
+    this._fcmPermissionService,
+  );
+
+  @override
+  Future<Result<ErrorMessage>> handleKakaoLogin() async {
+    String? idToken;
+    var result = await _doUserKakaoLogin();
+    switch (result) {
+      case Success(data: var d):
+        idToken = d;
+        await _authService.sendIdTokenToServer(idToken!);
+        return Success(ErrorMessage.kakaoAuthSuccess);
+      case Failure():
+        return Failure(ErrorMessage.kakaoAuthFail.toString());
+    }
+  }
+
+  @override
+  Future<Result<ErrorMessage>> requestFCMTokenAndSendToServer() async {
+    await _fcmPermissionService.requestFcmAlertPermission();
+
+    // FCM 토큰 발급 및 로컬 저장
+    final fcmToken = await _fcmTokenService.generateAndSaveFcmToken();
+
+    if (fcmToken == null) {
+      return Failure(ErrorMessage.fcmTokenGenerateFail.toString());
+    }
+
+    await _enrollFcmTokenToServer(_fcmTokenService);
+    return Success(ErrorMessage.fcmTokenGenerateSuccess);
+  }
+
+  /// 카카오 로그인 담당 로직
+  Future<Result<String?>> _doUserKakaoLogin() async {
+    if (await isKakaoTalkInstalled()) {
+      return await _loginWithKakaoTalkApplication();
+    }
+
+    return await _loginWithKakaoAccountOnWebPopUp();
+  }
+
+  Future<Result<String?>> _loginWithKakaoTalkApplication() async {
+    try {
+      OAuthToken oAuthToken = await UserApi.instance.loginWithKakaoTalk();
+      return Success(oAuthToken.idToken);
+    } catch (error) {
+      String msg = '카카오톡 어플 로그인 실패';
+      if (error is PlatformException && error.code == 'CANCELED') {
+        msg = '의도적인 취소로 인한 실패';
+      }
+      return Failure(msg);
+    }
+  }
+
+  Future<Result<String?>> _loginWithKakaoAccountOnWebPopUp() async {
+    try {
+      OAuthToken oAuthToken = await UserApi.instance.loginWithKakaoAccount();
+      return Success(oAuthToken.idToken);
+    } catch (error) {
+      return Failure('카카오 계정으로 로그인 실패');
+    }
+  }
+
+  /// FCM 담당 로직
+  Future<void> _enrollFcmTokenToServer(FcmTokenService fcmTokenService) async {
+    final enrollSuccess = await fcmTokenService.enrollFcmTokenToServer();
+
+    if (enrollSuccess) {
+      debugPrint('FCM token workflow completed successfully');
+    } else {
+      debugPrint('FCM token enrollment to server failed');
+    }
+  }
+}

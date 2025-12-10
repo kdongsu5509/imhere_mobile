@@ -1,0 +1,41 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:injectable/injectable.dart';
+
+import 'dto/fcm_token.dart';
+
+/// FCM 토큰을 서버에 전송하는 Repository
+@lazySingleton
+class FcmTokenRepository {
+  final Dio _dio;
+
+  FcmTokenRepository(this._dio);
+
+  final _fcmTokenEnrollApi = '/api/v1/notification/enroll';
+
+  Future<bool> enrollFcmToken(String fcmToken) async {
+    try {
+      final request = FcmToken(fcmToken: fcmToken);
+
+      final response = await _dio.post(
+        _fcmTokenEnrollApi,
+        data: request.toJson(),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint('FCM token enrolled successfully');
+        return true;
+      } else {
+        debugPrint('Failed to enroll FCM token: ${response.statusCode}');
+        return false;
+      }
+    } on DioException catch (e) {
+      debugPrint('DioException while enrolling FCM token: ${e.message}');
+      debugPrint('Response: ${e.response?.data}');
+      return false;
+    } catch (e) {
+      debugPrint('Error enrolling FCM token: $e');
+      return false;
+    }
+  }
+}
