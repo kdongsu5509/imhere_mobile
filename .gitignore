@@ -1,0 +1,71 @@
+# -----------------------------
+# 1. 공통 무시 대상 (Common)
+# -----------------------------
+.DS_Store
+*.log
+*.tmp
+*.bak
+*~
+*.swp
+*.pyc
+/log/
+/temp/
+logs/
+temp/
+.idea/
+desktop.ini
+/build/
+**/build/
+
+# -----------------------------
+# 2. Flutter 프로젝트 무시 대상 (Flutter)
+# -----------------------------
+/.dart_tool/
+/.idea/
+/*.iml
+/.metadata
+/.packages
+/.flutter-plugins
+/.flutter-plugins-dependencies
+/build/
+/.pub-cache/
+/.pub/
+/**/doc/api/
+/**/ios/Flutter/.last_build_id
+
+# Android 빌드 관련 (Flutter 내부)
+/android/.gradle/
+/android/app/build/
+/android/local.properties
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
+
+# iOS 빌드 관련 (Flutter 내부)
+/ios/.symlinks/
+/ios/Pods/
+/ios/Runner.xcworkspace/
+/ios/Runner.xcodeproj/project.xcworkspace/
+
+#파이어베이스 관련
+/android/app/google-services.json
+/lib/firebase_options.dart
+
+# riverpod 파일 관리
+*.g.dart
+
+# mock 데이터 제거
+*.mocks.dart
+
+# injectable 파일 제거
+*.config.dart
+
+# 테스트 측정 결과 제거
+/coverage
+/android/build/reports
+
+# 민감 데이터 관리(Flutter 내부 민감 데이터)
+*.env
+
+# 키 암호 파일
+cert.der

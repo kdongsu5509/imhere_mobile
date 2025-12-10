@@ -1,0 +1,111 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iamhere/auth/service/token_storage_service.dart';
+import 'package:iamhere/auth/view/component/login_button.dart';
+import 'package:iamhere/auth/view/component/login_button_info.dart';
+import 'package:iamhere/auth/view/component/right_content_widget.dart';
+import 'package:iamhere/auth/view_model/auth_view_model.dart';
+import 'package:iamhere/common/result/result.dart';
+import 'package:iamhere/common/router/go_router.dart';
+import 'package:iamhere/core/di/di_setup.dart';
+
+class AuthView extends ConsumerStatefulWidget {
+  final AuthViewModel _authViewModel;
+  const AuthView(this._authViewModel, {super.key});
+
+  @override
+  ConsumerState<AuthView> createState() => _AuthViewState();
+}
+
+class _AuthViewState extends ConsumerState<AuthView> {
+  final String _appTitle = 'Imhere';
+  final String _subTitle = '정해진 장소를 지나면 문자를 보낼게요!';
+  final String _authorizationRequestDescription = '앱 사용을 위해 다음 권한이 필요해요';
+  final List<String> _authorizationElements = ['위치', 'SMS', '연락처', '백그라운드 위치'];
+
+  Future<void> _handleLogin() async {
+    var result = await widget._authViewModel.handleKakaoLogin();
+
+    if (!mounted) return;
+    result.handle(context: context, onSuccess: (data) {}, showSnackBar: false);
+
+    // 로그인 성공 후 토큰 확인 및 화면 전환
+    final tokenStorage = getIt<TokenStorageService>();
+    final accessToken = await tokenStorage.getAccessToken();
+    if (accessToken != null && accessToken.isNotEmpty && mounted) {
+      var result = await widget._authViewModel.requestFCMTokenAndSendToServer();
+      if (!mounted) return;
+      result.handle(
+        context: context,
+        onSuccess: (data) => {if (context.mounted) router.go('/geofence')},
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: 65.h),
+            buildAppTitle(context),
+            SizedBox(height: 6.h),
+            buildAppSubTitle(context),
+            SizedBox(height: 270.h),
+            consistLoginButtons(context, ref),
+            SizedBox(height: 40.h),
+            buildAuthorizationRequestDescription(context),
+            SizedBox(height: 10.h),
+            consistAuthenticationElements(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Text buildAppTitle(BuildContext context) {
+    return Text(
+      _appTitle,
+      style: Theme.of(
+        context,
+      ).textTheme.headlineLarge?.copyWith(fontSize: 58.sp),
+    );
+  }
+
+  Text buildAppSubTitle(BuildContext context) {
+    return Text(
+      _subTitle,
+      style: Theme.of(
+        context,
+      ).textTheme.headlineMedium?.copyWith(fontSize: 20.sp),
+    );
+  }
+
+  Widget consistLoginButtons(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        LoginButton(buttonInfo: LoginInfoData.kakao, onPressed: _handleLogin),
+      ],
+    );
+  }
+
+  Text buildAuthorizationRequestDescription(BuildContext context) {
+    return Text(
+      _authorizationRequestDescription,
+      style: Theme.of(context).textTheme.bodyLarge,
+    );
+  }
+
+  Row consistAuthenticationElements(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: _authorizationElements
+          .map((right) => rightContentWidget(context: context, right: right))
+          .toList(),
+    );
+  }
+}
