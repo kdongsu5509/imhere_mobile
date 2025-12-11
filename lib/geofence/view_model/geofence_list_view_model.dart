@@ -1,22 +1,23 @@
+import 'package:get_it/get_it.dart';
 import 'package:iamhere/geofence/repository/geofence_entity.dart';
-import 'package:iamhere/geofence/repository/geofence_repository_provider.dart';
+import 'package:iamhere/geofence/repository/geofence_local_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'geofence_list_view_model.g.dart';
 
 @Riverpod(keepAlive: true)
 class GeofenceListViewModel extends _$GeofenceListViewModel {
+  final _geofenceRepository = GetIt.I<GeofenceLocalRepository>();
+
   @override
   Future<List<GeofenceEntity>> build() async {
-    final repository = ref.read(geofenceRepositoryProvider);
-    return await repository.findAll();
+    return await _geofenceRepository.findAll();
   }
 
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final repository = ref.read(geofenceRepositoryProvider);
-      return await repository.findAll();
+      return await _geofenceRepository.findAll();
     });
   }
 
@@ -40,8 +41,7 @@ class GeofenceListViewModel extends _$GeofenceListViewModel {
       state = AsyncValue.data(List.from(updatedList));
 
       // 데이터베이스 업데이트
-      final repository = ref.read(geofenceRepositoryProvider);
-      await repository.updateActiveStatus(id, isActive);
+      await _geofenceRepository.updateActiveStatus(id, isActive);
 
       // 데이터베이스 업데이트 후 상태를 다시 확인하여 동기화
       // 낙관적 업데이트가 성공했으므로 추가 리프레시는 필요 없지만,
@@ -67,8 +67,7 @@ class GeofenceListViewModel extends _$GeofenceListViewModel {
       state = AsyncValue.data(updatedList);
 
       // 데이터베이스에서 삭제
-      final repository = ref.read(geofenceRepositoryProvider);
-      await repository.delete(id);
+      await _geofenceRepository.delete(id);
     } catch (e) {
       // 실패 시 롤백
       state = previousState;

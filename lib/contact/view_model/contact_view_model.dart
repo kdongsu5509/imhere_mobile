@@ -1,12 +1,13 @@
 import 'dart:developer';
 
 import 'package:flutter/services.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:iamhere/contact/repository/contact_repository_provider.dart';
+import 'package:get_it/get_it.dart';
+import 'package:iamhere/contact/repository/contact_local_repository.dart';
 import 'package:iamhere/contact/view_model/contact.dart';
 import 'package:iamhere/contact/view_model/contact_adapter.dart';
 import 'package:iamhere/contact/view_model/contact_view_model_interface.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../repository/contact_repository.dart';
 
@@ -20,7 +21,7 @@ class ContactViewModel extends _$ContactViewModel
   /// AsyncNotifierProvider 초기화
   @override
   Future<List<Contact>> build() async {
-    _repository = ref.watch(contactRepositoryProvider);
+    _repository = GetIt.I<ContactLocalRepository>();
 
     final foundEntities = await _repository.findAll();
     return foundEntities.map((entity) {

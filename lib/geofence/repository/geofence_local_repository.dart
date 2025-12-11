@@ -1,9 +1,12 @@
 import 'package:iamhere/common/database/local_database_service.dart';
 import 'package:iamhere/geofence/repository/geofence_entity.dart';
 import 'package:iamhere/geofence/repository/geofence_repository.dart';
+import 'package:injectable/injectable.dart';
 
+@lazySingleton
 class GeofenceLocalRepository implements GeofenceRepository {
-  final LocalDatabaseService _database = LocalDatabaseService.instance;
+  final LocalDatabaseService _database;
+  GeofenceLocalRepository(this._database);
 
   @override
   Future<List<GeofenceEntity>> findAll() async {
