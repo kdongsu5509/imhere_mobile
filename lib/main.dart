@@ -6,7 +6,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iamhere/common/router/go_router.dart';
-import 'package:iamhere/common/theme/im_here_them_data_light.dart';
+import 'package:iamhere/common/theme/im_here_theme_data_light.dart';
 import 'package:iamhere/core/di/di_setup.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 
