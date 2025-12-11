@@ -1,69 +1,16 @@
 import 'package:iamhere/common/database/local_database_exception.dart';
+import 'package:iamhere/common/database/local_database_properties.dart';
 import 'package:iamhere/contact/repository/contact_entity.dart';
 import 'package:iamhere/geofence/repository/geofence_entity.dart';
 import 'package:iamhere/record/repository/geofence_record_entity.dart';
-import 'package:path/path.dart';
+import 'package:injectable/injectable.dart';
 import 'package:sqflite/sqflite.dart';
 
+@singleton
 class LocalDatabaseService {
-  // ========== Constants & Singleton ==========
-  static const double defaultRadius = 300.0;
-  static const String defaultMessage = '';
-  static const String defaultContactIds = '[]';
-  static const int defaultIsActive = 0;
-  static const String defaultSendMachine = 'mobile';
+  final Database _db;
+  LocalDatabaseService(this._db);
 
-  static final LocalDatabaseService instance = LocalDatabaseService._init();
-  static Database? _database;
-
-  static const String databaseName = "im_here.db";
-  static const String contactTableName = 'contacts';
-  static const String geofenceTableName = 'geofence';
-  static const String recordTableName = 'records';
-
-  LocalDatabaseService._init();
-
-  // ========== Database Initialization ==========
-
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDatabase();
-    return _database!;
-  }
-
-  String _createContactsTableQuery() {
-    return 'CREATE TABLE $contactTableName(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, number TEXT)';
-  }
-
-  String _createGeofenceTableQuery() {
-    return 'CREATE TABLE $geofenceTableName(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, lat REAL, lng REAL, radius REAL, message TEXT, contact_ids TEXT, is_active INTEGER DEFAULT 0)';
-  }
-
-  String _createRecordsTableQuery() {
-    return 'CREATE TABLE $recordTableName(id INTEGER PRIMARY KEY AUTOINCREMENT, geofence_id INTEGER, geofence_name TEXT, message TEXT, recipients TEXT, created_at TEXT, send_machine TEXT)';
-  }
-
-  Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), databaseName);
-
-    String contactTableQuery = _createContactsTableQuery();
-    String geofenceTableQuery = _createGeofenceTableQuery();
-    String recordsTableQuery = _createRecordsTableQuery();
-
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: (db, version) async {
-        await db.execute(contactTableQuery);
-        await db.execute(geofenceTableQuery);
-        await db.execute(recordsTableQuery);
-      },
-    );
-  }
-
-  // ========== Common Helper Methods ==========
-
-  /// Generic insert operation with error handling
   Future<T> _executeInsert<T>({
     required String entityName,
     required String table,
@@ -72,8 +19,8 @@ class LocalDatabaseService {
     String? entityDetails,
   }) async {
     try {
-      var db = await instance.database;
-      final id = await db.insert(
+      // _db 사용
+      final id = await _db.insert(
         table,
         values,
         conflictAlgorithm: ConflictAlgorithm.abort,
@@ -88,7 +35,6 @@ class LocalDatabaseService {
     }
   }
 
-  /// Generic update operation with validation and error handling
   Future<int> _executeUpdate({
     required String entityName,
     required int? entityId,
@@ -104,8 +50,8 @@ class LocalDatabaseService {
     }
 
     try {
-      var db = await instance.database;
-      final count = await db.update(
+      // _db 사용
+      final count = await _db.update(
         table,
         values,
         where: 'id = ?',
@@ -130,7 +76,6 @@ class LocalDatabaseService {
     }
   }
 
-  /// Generic query operation with mapping and error handling
   Future<List<T>> _executeQuery<T>({
     required String entityName,
     required String table,
@@ -138,8 +83,8 @@ class LocalDatabaseService {
     String? orderBy,
   }) async {
     try {
-      var db = await instance.database;
-      final result = await db.query(table, orderBy: orderBy);
+      // _db 사용
+      final result = await _db.query(table, orderBy: orderBy);
       return result.map((json) => fromMap(json)).toList();
     } catch (e) {
       throw LocalDatabaseException(
@@ -149,7 +94,6 @@ class LocalDatabaseService {
     }
   }
 
-  /// Generic delete operation with error handling
   Future<void> _executeDelete({
     required String entityName,
     required String table,
@@ -157,11 +101,11 @@ class LocalDatabaseService {
     String? additionalDetails,
   }) async {
     try {
-      var db = await instance.database;
+      // _db 사용
       if (id != null) {
-        await db.delete(table, where: 'id = ?', whereArgs: [id]);
+        await _db.delete(table, where: 'id = ?', whereArgs: [id]);
       } else {
-        await db.delete(table);
+        await _db.delete(table);
       }
     } catch (e) {
       final details = id != null ? 'ID: $id' : additionalDetails;
@@ -174,11 +118,12 @@ class LocalDatabaseService {
   }
 
   // ========== Contact Operations ==========
+  // 기존 로직과 동일하지만 내부적으로 깔끔해진 _execute 메서드들을 사용합니다.
 
   Future<ContactEntity> saveContact(ContactEntity entity) async {
     return await _executeInsert(
       entityName: 'contact',
-      table: contactTableName,
+      table: LocalDatabaseProperties.contactTableName,
       values: entity.toMap(),
       createEntity: (id) => entity.copyWith(id: id),
       entityDetails: 'Contact: ${entity.name}',
@@ -189,7 +134,7 @@ class LocalDatabaseService {
     return await _executeUpdate(
       entityName: 'Contact',
       entityId: entity.id,
-      table: contactTableName,
+      table: LocalDatabaseProperties.contactTableName,
       values: entity.toMap(),
       entityDetails: 'Contact: ${entity.name}',
     );
@@ -198,7 +143,7 @@ class LocalDatabaseService {
   Future<List<ContactEntity>> findAllContacts() async {
     return await _executeQuery(
       entityName: 'contact',
-      table: contactTableName,
+      table: LocalDatabaseProperties.contactTableName,
       fromMap: ContactEntity.fromMap,
       orderBy: 'name ASC',
     );
@@ -207,7 +152,7 @@ class LocalDatabaseService {
   Future<void> deleteContact(int id) async {
     return await _executeDelete(
       entityName: 'contact',
-      table: contactTableName,
+      table: LocalDatabaseProperties.contactTableName,
       id: id,
     );
   }
@@ -217,7 +162,7 @@ class LocalDatabaseService {
   Future<GeofenceEntity> saveGeofence(GeofenceEntity entity) async {
     return await _executeInsert(
       entityName: 'geofence',
-      table: geofenceTableName,
+      table: LocalDatabaseProperties.geofenceTableName,
       values: entity.toMap(),
       createEntity: (id) => entity.copyWith(id: id),
       entityDetails: 'Geofence: ${entity.name}',
@@ -228,7 +173,7 @@ class LocalDatabaseService {
     return await _executeUpdate(
       entityName: 'Geofence',
       entityId: entity.id,
-      table: geofenceTableName,
+      table: LocalDatabaseProperties.geofenceTableName,
       values: entity.toMap(),
       entityDetails: 'Geofence: ${entity.name}',
     );
@@ -237,7 +182,7 @@ class LocalDatabaseService {
   Future<List<GeofenceEntity>> findAllGeofences() async {
     return await _executeQuery(
       entityName: 'geofence',
-      table: geofenceTableName,
+      table: LocalDatabaseProperties.geofenceTableName,
       fromMap: GeofenceEntity.fromMap,
       orderBy: 'name ASC',
     );
@@ -246,16 +191,15 @@ class LocalDatabaseService {
   Future<void> deleteGeofence(int id) async {
     return await _executeDelete(
       entityName: 'geofence',
-      table: geofenceTableName,
+      table: LocalDatabaseProperties.geofenceTableName,
       id: id,
     );
   }
 
   Future<void> updateGeofenceActiveStatus(int id, bool isActive) async {
     try {
-      var db = await instance.database;
-      await db.update(
-        geofenceTableName,
+      await _db.update(
+        LocalDatabaseProperties.geofenceTableName,
         {'is_active': isActive ? 1 : 0},
         where: 'id = ?',
         whereArgs: [id],
@@ -276,7 +220,7 @@ class LocalDatabaseService {
   ) async {
     return await _executeInsert(
       entityName: 'geofence record',
-      table: recordTableName,
+      table: LocalDatabaseProperties.recordTableName,
       values: entity.toMap(),
       createEntity: (id) => entity.copyWith(id: id),
       entityDetails: 'Geofence: ${entity.geofenceName}',
@@ -287,7 +231,7 @@ class LocalDatabaseService {
     return await _executeUpdate(
       entityName: 'Geofence record',
       entityId: entity.id,
-      table: recordTableName,
+      table: LocalDatabaseProperties.recordTableName,
       values: entity.toMap(),
       entityDetails: 'Geofence: ${entity.geofenceName}',
     );
@@ -296,7 +240,7 @@ class LocalDatabaseService {
   Future<List<GeofenceRecordEntity>> findAllGeofenceRecords() async {
     return await _executeQuery(
       entityName: 'geofence record',
-      table: recordTableName,
+      table: LocalDatabaseProperties.recordTableName,
       fromMap: GeofenceRecordEntity.fromMap,
       orderBy: 'created_at DESC',
     );
@@ -305,7 +249,7 @@ class LocalDatabaseService {
   Future<void> deleteGeofenceRecord(int id) async {
     return await _executeDelete(
       entityName: 'geofence record',
-      table: recordTableName,
+      table: LocalDatabaseProperties.recordTableName,
       id: id,
     );
   }
@@ -313,7 +257,7 @@ class LocalDatabaseService {
   Future<void> deleteAllGeofenceRecords() async {
     return await _executeDelete(
       entityName: 'all geofence records',
-      table: recordTableName,
+      table: LocalDatabaseProperties.recordTableName,
       additionalDetails: 'Deleting all records',
     );
   }
