@@ -10,6 +10,9 @@ import 'package:iamhere/geofence/view/geofence_enroll_view.dart';
 import 'package:iamhere/geofence/view/geofence_view.dart';
 import 'package:iamhere/record/view/record_view.dart';
 
+import 'custom_page_transition/buttom_up_transition.dart';
+import 'custom_page_transition/simple_transition.dart';
+
 final GoRouter router = GoRouter(
   initialLocation: '/geofence',
   redirect: (context, state) async {
@@ -46,7 +49,7 @@ final GoRouter router = GoRouter(
       routes: [
         GoRoute(
           path: '/geofence',
-          pageBuilder: (context, state) => buildPageWithoutTransition(
+          pageBuilder: (context, state) => buildPageWithSimpleTransition(
             context: context,
             state: state,
             child: const GeofenceView(),
@@ -66,7 +69,7 @@ final GoRouter router = GoRouter(
         // 2. 연락처 탭 경로
         GoRoute(
           path: '/contact',
-          pageBuilder: (context, state) => buildPageWithoutTransition(
+          pageBuilder: (context, state) => buildPageWithSimpleTransition(
             context: context,
             state: state,
             child: const ContactView(),
@@ -76,7 +79,7 @@ final GoRouter router = GoRouter(
         // 3. 기록 탭 경로
         GoRoute(
           path: '/record',
-          pageBuilder: (context, state) => buildPageWithoutTransition(
+          pageBuilder: (context, state) => buildPageWithSimpleTransition(
             context: context,
             state: state,
             child: const RecordView(),
@@ -94,60 +97,3 @@ final GoRouter router = GoRouter(
   errorBuilder: (context, state) =>
       const Center(child: Text("페이지를 찾을 수 없습니다.")),
 );
-
-CustomTransitionPage buildPageWithoutTransition({
-  required BuildContext context,
-  required GoRouterState state,
-  required Widget child,
-}) {
-  return CustomTransitionPage(
-    key: state.pageKey,
-    child: child,
-    transitionDuration: Duration.zero,
-    reverseTransitionDuration: Duration.zero,
-
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return child;
-    },
-  );
-}
-
-CustomTransitionPage buildPageWithFadeTransition({
-  required BuildContext context,
-  required GoRouterState state,
-  required Widget child,
-}) {
-  return CustomTransitionPage(
-    key: state.pageKey,
-    child: child,
-    transitionDuration: const Duration(milliseconds: 300),
-
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(opacity: animation, child: child);
-    },
-  );
-}
-
-CustomTransitionPage buildPageWithBottomUpTransition({
-  required BuildContext context,
-  required GoRouterState state,
-  required Widget child,
-}) {
-  return CustomTransitionPage(
-    key: state.pageKey,
-    child: child,
-    transitionDuration: const Duration(milliseconds: 350),
-
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      const begin = Offset(0.0, 1.0); // 시작 지점: 화면 아래 (y=1.0)
-      const end = Offset.zero; // 도착 지점: 화면 중앙 (y=0.0)
-
-      final tween = Tween(
-        begin: begin,
-        end: end,
-      ).chain(CurveTween(curve: Curves.easeOut)); // 부드러운 전환 커브 적용
-
-      return SlideTransition(position: animation.drive(tween), child: child);
-    },
-  );
-}
