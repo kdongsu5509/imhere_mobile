@@ -3,17 +3,19 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:geolocator/geolocator.dart';
+import 'package:get_it/get_it.dart';
 import 'package:iamhere/contact/repository/contact_entity.dart';
-import 'package:iamhere/contact/repository/contact_repository_provider.dart';
+import 'package:iamhere/contact/repository/contact_local_repository.dart';
 import 'package:iamhere/geofence/repository/geofence_entity.dart';
-import 'package:iamhere/geofence/repository/geofence_repository_provider.dart';
 import 'package:iamhere/geofence/service/my_location_service.dart';
 import 'package:iamhere/geofence/service/sms_permission_service.dart';
 import 'package:iamhere/geofence/service/sms_service.dart';
 import 'package:iamhere/geofence/view_model/geofence_list_view_model.dart';
 import 'package:iamhere/record/repository/geofence_record_entity.dart';
-import 'package:iamhere/record/repository/geofence_record_repository_provider.dart';
+import 'package:iamhere/record/repository/geofence_record_local_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../repository/geofence_local_repository.dart';
 
 part 'geofence_monitoring_service.g.dart';
 
@@ -23,6 +25,9 @@ part 'geofence_monitoring_service.g.dart';
 class GeofenceMonitoringService extends _$GeofenceMonitoringService {
   StreamSubscription<Position>? _positionStreamSubscription;
   final Set<int> _enteredGeofenceIds = {}; // 이미 진입한 지오펜스 ID (중복 전송 방지)
+  final _geofenceRepository = GetIt.I<GeofenceLocalRepository>();
+  final _geofenceRecordRepository = GetIt.I<GeofenceRecordLocalRepository>();
+  final _contactRepository = GetIt.I<ContactLocalRepository>();
 
   @override
   Future<void> build() async {
@@ -98,8 +103,7 @@ class GeofenceMonitoringService extends _$GeofenceMonitoringService {
   /// 현재 위치에서 활성화된 지오펜스 확인
   Future<void> _checkGeofences(Position currentPosition) async {
     try {
-      final repository = ref.read(geofenceRepositoryProvider);
-      final allGeofences = await repository.findAll();
+      final allGeofences = await _geofenceRepository.findAll();
 
       // 활성화된 지오펜스만 필터링
       final activeGeofences = allGeofences.where((g) => g.isActive).toList();
@@ -166,8 +170,7 @@ class GeofenceMonitoringService extends _$GeofenceMonitoringService {
       }
 
       // 연락처 정보 가져오기
-      final contactRepository = ref.read(contactRepositoryProvider);
-      final allContacts = await contactRepository.findAll();
+      final allContacts = await _contactRepository.findAll();
 
       // 해당 ID의 연락처 필터링
       final recipients = allContacts
@@ -218,8 +221,6 @@ class GeofenceMonitoringService extends _$GeofenceMonitoringService {
       // 수신자 이름 리스트 생성
       final recipientNames = recipients.map((contact) => contact.name).toList();
 
-      final recordRepository = ref.read(geofenceRecordRepositoryProvider);
-
       final record = GeofenceRecordEntity(
         geofenceId: geofence.id!,
         geofenceName: geofence.name,
@@ -229,7 +230,7 @@ class GeofenceMonitoringService extends _$GeofenceMonitoringService {
         sendMachine: SendMachine.mobile,
       );
 
-      await recordRepository.save(record);
+      await _geofenceRecordRepository.save(record);
       log('지오펜스 기록 저장 완료: ${geofence.name}');
     } catch (e) {
       log('지오펜스 기록 저장 오류: $e');

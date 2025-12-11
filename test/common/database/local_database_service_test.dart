@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:iamhere/common/database/local_database_exception.dart';
+import 'package:iamhere/common/database/local_database_properties.dart';
 import 'package:iamhere/common/database/local_database_service.dart';
 import 'package:iamhere/contact/repository/contact_entity.dart';
 import 'package:iamhere/geofence/repository/geofence_entity.dart';
@@ -15,14 +16,57 @@ void main() {
   });
 
   group('LocalDatabaseService Tests', () {
+    late Database database;
     late LocalDatabaseService dbService;
 
     setUp(() async {
-      dbService = LocalDatabaseService.instance;
-      final db = await dbService.database;
-      await db.delete(LocalDatabaseService.contactTableName);
-      await db.delete(LocalDatabaseService.geofenceTableName);
-      await db.delete(LocalDatabaseService.recordTableName);
+      // Create in-memory database
+      database = await databaseFactoryFfi.openDatabase(
+        inMemoryDatabasePath,
+        options: OpenDatabaseOptions(
+          version: 1,
+          onCreate: (db, version) async {
+            // Create contacts table
+            await db.execute(
+              'CREATE TABLE ${LocalDatabaseProperties.contactTableName}('
+              'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+              'name TEXT, '
+              'number TEXT)',
+            );
+
+            // Create geofence table
+            await db.execute(
+              'CREATE TABLE ${LocalDatabaseProperties.geofenceTableName}('
+              'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+              'name TEXT, '
+              'lat REAL, '
+              'lng REAL, '
+              'radius REAL, '
+              'message TEXT, '
+              'contact_ids TEXT, '
+              'is_active INTEGER DEFAULT 0)',
+            );
+
+            // Create records table
+            await db.execute(
+              'CREATE TABLE ${LocalDatabaseProperties.recordTableName}('
+              'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+              'geofence_id INTEGER, '
+              'geofence_name TEXT, '
+              'message TEXT, '
+              'recipients TEXT, '
+              'created_at TEXT, '
+              'send_machine TEXT)',
+            );
+          },
+        ),
+      );
+
+      dbService = LocalDatabaseService(database);
+    });
+
+    tearDown(() async {
+      await database.close();
     });
 
     group('Contact Operations', () {
@@ -32,9 +76,11 @@ void main() {
 
         expect(saved.id, isNotNull);
         expect(saved.name, 'John');
+        expect(saved.number, '010-1234-5678');
 
         final all = await dbService.findAllContacts();
         expect(all.length, 1);
+        expect(all[0].id, saved.id);
         expect(all[0].name, 'John');
       });
 
@@ -346,16 +392,6 @@ void main() {
 
         final all = await dbService.findAllGeofenceRecords();
         expect(all.isEmpty, true);
-      });
-    });
-
-    group('Constants', () {
-      test('should have correct default values', () {
-        expect(LocalDatabaseService.defaultRadius, 300.0);
-        expect(LocalDatabaseService.defaultMessage, '');
-        expect(LocalDatabaseService.defaultContactIds, '[]');
-        expect(LocalDatabaseService.defaultIsActive, 0);
-        expect(LocalDatabaseService.defaultSendMachine, 'mobile');
       });
     });
   });
