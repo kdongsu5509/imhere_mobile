@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class PermissionItem {
-  final Permission permission;
   final String title;
   final IconData icon;
   final String shortDesc;
@@ -11,7 +9,6 @@ class PermissionItem {
   final bool isGranted;
 
   PermissionItem({
-    required this.permission,
     required this.title,
     required this.icon,
     required this.shortDesc,
@@ -22,7 +19,6 @@ class PermissionItem {
 
   PermissionItem copyWith({bool? isGranted}) {
     return PermissionItem(
-      permission: permission,
       icon: icon,
       title: title,
       shortDesc: shortDesc,
@@ -35,7 +31,6 @@ class PermissionItem {
 
 class LocationPermission extends PermissionItem {
   LocationPermission({
-    required super.permission,
     required super.title,
     required super.icon,
     required super.shortDesc,
@@ -46,7 +41,6 @@ class LocationPermission extends PermissionItem {
 
 class ContactPermission extends PermissionItem {
   ContactPermission({
-    required super.permission,
     required super.title,
     required super.icon,
     required super.shortDesc,
@@ -57,7 +51,6 @@ class ContactPermission extends PermissionItem {
 
 class SmsPermission extends PermissionItem {
   SmsPermission({
-    required super.permission,
     required super.title,
     required super.icon,
     required super.shortDesc,
@@ -68,7 +61,6 @@ class SmsPermission extends PermissionItem {
 
 class FcmAlertPermission extends PermissionItem {
   FcmAlertPermission({
-    required super.permission,
     required super.title,
     required super.icon,
     required super.shortDesc,

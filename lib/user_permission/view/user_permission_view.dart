@@ -18,8 +18,6 @@ class _UserPermissionViewState extends ConsumerState<UserPermissionView> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  // 총 페이지 수 = (인트로 1) + (권한 개수) + (완료 1)
-
   void _nextPage() {
     _pageController.nextPage(
       duration: const Duration(milliseconds: 300),
@@ -36,7 +34,6 @@ class _UserPermissionViewState extends ConsumerState<UserPermissionView> {
 
   @override
   Widget build(BuildContext context) {
-    final vm = ref.read(userPermissionViewModelProvider);
     final permissionItems = ref.watch(userPermissionViewModelProvider);
     int _totalPages = permissionItems.length + 2;
 
@@ -45,15 +42,7 @@ class _UserPermissionViewState extends ConsumerState<UserPermissionView> {
       body: SafeArea(
         child: Column(
           children: [
-            // 상단 진행바 (Progress Bar)
-            LinearProgressIndicator(
-              value: (_currentPage + 1) / _totalPages,
-              backgroundColor: Colors.grey[100],
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                Color(0xFF48D1CC),
-              ),
-              minHeight: 4,
-            ),
+            _buildLinearProgressIndicator(_totalPages),
 
             Expanded(
               child: PageView.builder(
@@ -65,14 +54,12 @@ class _UserPermissionViewState extends ConsumerState<UserPermissionView> {
                 },
                 itemBuilder: (context, index) {
                   if (index == 0) {
-                    // 1. 인트로
                     return IntroPage(onNext: _nextPage);
                   } else if (index == _totalPages - 1) {
-                    // 3. 완료
                     return FinishPage(onFinish: _onFinish);
                   } else {
-                    // 2. 권한 페이지들
                     return PermissionPage(
+                      pageIndex: _currentPage,
                       item: permissionItems[index - 1],
                       onNext: _nextPage,
                     );
@@ -83,6 +70,15 @@ class _UserPermissionViewState extends ConsumerState<UserPermissionView> {
           ],
         ),
       ),
+    );
+  }
+
+  LinearProgressIndicator _buildLinearProgressIndicator(int _totalPages) {
+    return LinearProgressIndicator(
+      value: (_currentPage + 1) / _totalPages,
+      backgroundColor: Colors.grey[100],
+      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF48D1CC)),
+      minHeight: 4,
     );
   }
 }
