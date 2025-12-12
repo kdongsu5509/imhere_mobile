@@ -22,19 +22,11 @@ class PermissionPage extends StatelessWidget {
           SizedBox(height: 16.h),
           _buildPermissionPageTitle(),
           const Spacer(),
-
-          // 상세 설명
           Text(
             item.detailedDesc,
-            style: const TextStyle(
-              fontSize: 17,
-              color: Colors.black54,
-              height: 1.6,
-            ),
+            style: TextStyle(fontSize: 17.sp, height: 1.6),
           ),
-
           const Spacer(),
-
           _buildButtons(context),
           SizedBox(height: 10.h),
         ],
@@ -47,11 +39,9 @@ class PermissionPage extends StatelessWidget {
     final skipText = '건너뛰기 (권장하지 않음)';
     return Column(
       children: [
-        // 허용하기 버튼
         _buildAllowButton(),
         SizedBox(height: 12.h),
 
-        // 건너뛰기 버튼 (선택 권한일 때만 표시)
         if (!item.isRequired)
           _buildLaterButton(message: laterText, onPressed: onNext)
         else
@@ -84,9 +74,7 @@ class PermissionPage extends StatelessWidget {
     final _allowText = '허용하기';
     return BlackButton(
       onPressed: () async {
-        // 권한 요청
         await item.permission.request();
-        // 결과와 상관없이 다음 페이지로 넘김 (UX 자연스러움)
         onNext();
       },
       message: _allowText,
@@ -97,9 +85,15 @@ class PermissionPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          item.title,
-          style: TextStyle(fontSize: 32.h, fontWeight: FontWeight.bold),
+        Row(
+          children: [
+            Text(
+              item.title,
+              style: TextStyle(fontSize: 32.h, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(width: 5.w),
+            Icon(item.icon, color: Colors.grey[700]),
+          ],
         ),
         if (item.isRequired) _buildRequiredText(),
       ],
