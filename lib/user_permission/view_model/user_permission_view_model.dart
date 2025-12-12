@@ -21,20 +21,29 @@ class UserPermissionViewModel extends _$UserPermissionViewModel {
     bool hasChanged = false;
 
     for (int i = 0; i < newState.length; i++) {
-      final permissions = newState[i];
-
-      final permissionService = _getProperPermissionService(permissions);
-      final isGranted = await permissionService.isPermissionGranted();
-
-      if (isGranted) {
-        newState[i] = newState[i].copyWith(isGranted: true);
-        hasChanged = true;
-      }
+      hasChanged = await _checkSpecificPermissionState(newState, i, hasChanged);
     }
 
     if (hasChanged) {
       state = newState;
     }
+  }
+
+  Future<bool> _checkSpecificPermissionState(
+    List<PermissionItem> newState,
+    int i,
+    bool hasChanged,
+  ) async {
+    final permissions = newState[i];
+
+    final permissionService = _getProperPermissionService(permissions);
+    final isGranted = await permissionService.isPermissionGranted();
+
+    if (isGranted) {
+      newState[i] = newState[i].copyWith(isGranted: true);
+      hasChanged = true;
+    }
+    return hasChanged;
   }
 
   /// 특정 권한 요청 로직
