@@ -1,16 +1,16 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iamhere/common/view_component/page_title.dart';
 import 'package:iamhere/geofence/repository/geofence_entity.dart';
 import 'package:iamhere/geofence/service/geofence_monitoring_service.dart';
-import 'package:iamhere/geofence/service/my_location_service.dart';
-import 'package:iamhere/geofence/service/sms_permission_service.dart';
-import 'package:iamhere/geofence/view/component/geofence_tile.dart';
 import 'package:iamhere/geofence/view_model/geofence_list_view_model.dart';
 import 'package:iamhere/geofence/view_model/geofence_view_model.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:iamhere/user_permission/model/permission_state.dart';
+
+import 'widget/geofence_tile.dart';
 
 class GeofenceView extends ConsumerStatefulWidget {
   const GeofenceView({super.key});
@@ -30,45 +30,6 @@ class _GeofenceViewState extends ConsumerState<GeofenceView>
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
-
-    // 화면 진입 시 위치 권한 및 SMS 권한 확인 및 요청
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkAndRequestLocationPermission();
-      _checkAndRequestSmsPermission();
-    });
-  }
-
-  /// 위치 권한 확인 및 요청
-  Future<void> _checkAndRequestLocationPermission() async {
-    final permissionStatus = await Permission.locationAlways.status;
-
-    if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
-      // 권한이 없으면 요청
-      try {
-        final locationService = MyLocationService();
-        await locationService.requestLocationPermissions();
-
-        // 권한 상태 새로고침
-        ref.read(geofenceViewModelProvider.notifier).refreshPermissionStatus();
-      } catch (e) {
-        debugPrint('위치 권한 요청 실패: $e');
-      }
-    }
-  }
-
-  /// SMS 권한 확인 및 요청
-  Future<void> _checkAndRequestSmsPermission() async {
-    try {
-      final smsPermissionService = SmsPermissionService();
-      final hasPermission = await smsPermissionService.isSmsPermissionGranted();
-
-      if (!hasPermission) {
-        // 권한이 없으면 요청
-        await smsPermissionService.requestAndCheckSmsPermission();
-      }
-    } catch (e) {
-      debugPrint('SMS 권한 요청 실패: $e');
-    }
   }
 
   @override
@@ -319,7 +280,7 @@ class _GeofenceViewState extends ConsumerState<GeofenceView>
 
   // GPS 추적 정보 표시 위젯 (ScreenUtil 적용)
   Widget _buildGPSInfoTrackingUsingDescription(
-    AsyncValue<PermissionStatus> permissionAsyncValue,
+    AsyncValue<PermissionState> permissionAsyncValue,
   ) {
     return permissionAsyncValue.when(
       data: (permissionStatus) => Container(
@@ -334,27 +295,7 @@ class _GeofenceViewState extends ConsumerState<GeofenceView>
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          children: (permissionStatus == PermissionStatus.granted)
-              ? [_buildBlinkingGPSIcon(), _buildDescription()]
-              : [
-                  _buildPermissionInfoDescription(),
-                  SizedBox(width: 8.w),
-                  IconButton(
-                    icon: Icon(
-                      Icons.settings,
-                      color: Colors.white,
-                      size: 20.sp,
-                    ),
-                    onPressed: () async {
-                      await _checkAndRequestLocationPermission();
-                      ref
-                          .read(geofenceViewModelProvider.notifier)
-                          .refreshPermissionStatus();
-                    },
-                    padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(),
-                  ),
-                ],
+          children: [_buildBlinkingGPSIcon(), _buildDescription()],
         ),
       ),
       loading: () => SizedBox(
@@ -377,20 +318,6 @@ class _GeofenceViewState extends ConsumerState<GeofenceView>
         color: Theme.of(context).colorScheme.surface,
         fontWeight: FontWeight.bold,
         fontSize: 16.sp,
-      ),
-    );
-  }
-
-  Widget _buildPermissionInfoDescription() {
-    final descriptionMessageWhenPermissionBad = "    위치 권한을 `항상 허용` 해주세요";
-    return Center(
-      child: Text(
-        descriptionMessageWhenPermissionBad,
-        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-          color: Theme.of(context).colorScheme.error,
-          fontWeight: FontWeight.bold,
-          fontSize: 16.sp,
-        ),
       ),
     );
   }

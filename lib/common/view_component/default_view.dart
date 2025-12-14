@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:iamhere/common/router/go_router.dart';
+import 'package:iamhere/common/router/router_provider.dart';
 
-class DefaultView extends StatelessWidget {
+class DefaultView extends ConsumerWidget {
   final Widget child;
 
   final String _appTitle = 'Imhere';
@@ -24,7 +25,8 @@ class DefaultView extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final routerConfig = ref.watch(routerProvider);
     final theme = Theme.of(context);
     final selectedIndex = _calculateSelectedIndex(context);
 
@@ -44,7 +46,7 @@ class DefaultView extends StatelessWidget {
           size: 28.sp, // 반응형 크기 적용
         ),
         onPressed: () {
-          router.go("/geofence/enroll");
+          routerConfig.go("/geofence/enroll");
         },
       ),
     );

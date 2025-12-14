@@ -18,7 +18,6 @@ class LocationPermissionItem extends PermissionItem {
       shortDesc: shortDesc,
       detailedDesc: detailedDesc,
       isRequired: isRequired,
-      // 중요: super.isGranted가 아니라 그냥 매개변수로 전달
       isGranted: isGranted ?? this.isGranted,
     );
   }

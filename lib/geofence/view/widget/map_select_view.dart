@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:iamhere/geofence/service/my_location_service.dart';
+
+import '../../../user_permission/service/concrete/locate_permission_service.dart';
 
 class MapSelectView extends StatefulWidget {
   final NLatLng? initialLocation;
@@ -28,7 +29,7 @@ class _MapSelectViewState extends State<MapSelectView> {
   }
 
   Future<NaverMapViewOptions> _getInitialMapOptions() async {
-    Position currentUserLocation = await MyLocationService()
+    Position currentUserLocation = await LocatePermissionService()
         .getCurrentUserLocation();
 
     // 기존 선택 위치가 있으면 그곳을, 없으면 현재 위치

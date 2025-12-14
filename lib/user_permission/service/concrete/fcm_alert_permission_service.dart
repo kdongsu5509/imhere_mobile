@@ -1,5 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:iamhere/user_permission/model/permission_state.dart';
 
 import '../permission_service_interface.dart';

@@ -13,7 +13,7 @@ part 'router_provider.g.dart';
 GoRouter router(Ref ref) {
   return GoRouter(
     refreshListenable: _createNotifier(ref),
-    initialLocation: '/geofence',
+    initialLocation: '/user-permission',
     redirect: (context, state) => RouterLogic.handleRedirect(ref, state),
     routes: appRoutes,
     errorBuilder: (_, __) => const Center(child: Text("Page Not Found")),
