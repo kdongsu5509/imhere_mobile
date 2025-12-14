@@ -1,31 +1,28 @@
 import 'dart:convert';
 
 import 'package:get_it/get_it.dart';
+import 'package:iamhere/core/di/di_setup.dart';
 import 'package:iamhere/geofence/repository/geofence_entity.dart';
+import 'package:iamhere/geofence/repository/geofence_local_repository.dart';
 import 'package:iamhere/geofence/view_model/geofence_view_model_interface.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:iamhere/user_permission/model/permission_state.dart';
+import 'package:iamhere/user_permission/service/permission_service_interface.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../repository/geofence_local_repository.dart';
 
 part 'geofence_view_model.g.dart';
 
 @Riverpod(keepAlive: true)
 class GeofenceViewModel extends _$GeofenceViewModel
     implements GeofenceViewModelInterface {
-  late PermissionStatus alwaysStatus;
+  late PermissionState alwaysStatus;
   final _geofenceRepository = GetIt.I<GeofenceLocalRepository>();
+  final _locationPermissionService = getIt<PermissionServiceInterface>(
+    instanceName: 'location',
+  );
 
   @override
-  Future<PermissionStatus> build() async {
-    return await Permission.locationAlways.status;
-  }
-
-  Future<void> refreshPermissionStatus() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      return await Permission.locationAlways.status;
-    });
+  Future<PermissionState> build() async {
+    return await _locationPermissionService.checkPermissionStatus();
   }
 
   @override

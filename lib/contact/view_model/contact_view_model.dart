@@ -6,14 +6,15 @@ import 'package:iamhere/contact/repository/contact_local_repository.dart';
 import 'package:iamhere/contact/view_model/contact.dart';
 import 'package:iamhere/contact/view_model/contact_adapter.dart';
 import 'package:iamhere/contact/view_model/contact_view_model_interface.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:iamhere/core/di/di_setup.dart';
+import 'package:iamhere/user_permission/service/permission_service_interface.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../repository/contact_repository.dart';
 
 part 'contact_view_model.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 class ContactViewModel extends _$ContactViewModel
     implements ContactViewModelInterface {
   late ContactRepository _repository;
@@ -35,7 +36,10 @@ class ContactViewModel extends _$ContactViewModel
   ///methodChannel (Native Linking Code)
   @override
   Future<Contact?> selectContact() async {
-    await _checkPermission();
+    final contactPermissionService = getIt<PermissionServiceInterface>(
+      instanceName: 'contact',
+    );
+    await contactPermissionService.checkPermissionStatus();
 
     try {
       final Map<dynamic, dynamic>? result = await methodChannel.invokeMethod(
@@ -78,25 +82,6 @@ class ContactViewModel extends _$ContactViewModel
     } catch (e) {
       state = previousState;
       log('연락처 삭제 실패 및 롤백: $e');
-    }
-  }
-
-  Future<void> _checkPermission() async {
-    final status = await Permission.contacts.request();
-    if (status.isGranted || status.isLimited) {
-      return;
-    }
-
-    if (status.isDenied) {
-      throw Exception("연락처 권한을 허용해주세요!");
-    }
-
-    if (status.isRestricted) {
-      throw Exception("사용자 기기의 정책으로 인해 접근이 불가능 합니다. 설정에서 정책을 변경해주세요");
-    }
-
-    if (status.isPermanentlyDenied) {
-      throw Exception("연락처 권한이 영구적으로 거부되었습니다. 설정에서 수동으로 허용해주세요.");
     }
   }
 }

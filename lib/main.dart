@@ -5,7 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:iamhere/common/router/go_router.dart';
+import 'package:iamhere/common/router/router_provider.dart';
 import 'package:iamhere/common/theme/im_here_theme_data_light.dart';
 import 'package:iamhere/core/di/di_setup.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
@@ -18,16 +18,17 @@ void main() async {
   runApp(const ProviderScope(child: ImHereApp()));
 }
 
-class ImHereApp extends StatefulWidget {
+class ImHereApp extends ConsumerStatefulWidget {
   const ImHereApp({super.key});
 
   @override
-  State<ImHereApp> createState() => _ImHereAppState();
+  ConsumerState<ImHereApp> createState() => _ImHereAppState();
 }
 
-class _ImHereAppState extends State<ImHereApp> {
+class _ImHereAppState extends ConsumerState<ImHereApp> {
   @override
   Widget build(BuildContext context) {
+    final routerConfig = ref.watch(routerProvider);
     return ScreenUtilInit(
       designSize: const Size(402, 874),
       minTextAdapt: true,
@@ -36,7 +37,7 @@ class _ImHereAppState extends State<ImHereApp> {
         return MaterialApp.router(
           title: 'ImHere',
           theme: lightTheme,
-          routerConfig: router,
+          routerConfig: routerConfig,
         );
       },
     );

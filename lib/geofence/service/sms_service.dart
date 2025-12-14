@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iamhere/core/di/di_setup.dart';
-import 'package:iamhere/geofence/service/sms_permission_service.dart';
+import 'package:iamhere/user_permission/service/concrete/sms_permission_service.dart';
 
 class SmsService {
   final Ref ref;
