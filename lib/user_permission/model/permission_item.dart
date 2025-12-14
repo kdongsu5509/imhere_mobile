@@ -8,7 +8,7 @@ class PermissionItem {
   final bool isRequired;
   final bool isGranted;
 
-  PermissionItem({
+  const PermissionItem({
     required this.title,
     required this.icon,
     required this.shortDesc,
@@ -17,54 +17,15 @@ class PermissionItem {
     this.isGranted = false,
   });
 
+  /// 부모 클래스에도 copyWith 정의 (기본 형태)
   PermissionItem copyWith({bool? isGranted}) {
     return PermissionItem(
-      icon: icon,
       title: title,
+      icon: icon,
       shortDesc: shortDesc,
       detailedDesc: detailedDesc,
       isRequired: isRequired,
       isGranted: isGranted ?? this.isGranted,
     );
   }
-}
-
-class LocationPermission extends PermissionItem {
-  LocationPermission({
-    required super.title,
-    required super.icon,
-    required super.shortDesc,
-    required super.detailedDesc,
-    super.isRequired = true,
-  });
-}
-
-class ContactPermission extends PermissionItem {
-  ContactPermission({
-    required super.title,
-    required super.icon,
-    required super.shortDesc,
-    required super.detailedDesc,
-    super.isRequired = true,
-  });
-}
-
-class SmsPermission extends PermissionItem {
-  SmsPermission({
-    required super.title,
-    required super.icon,
-    required super.shortDesc,
-    required super.detailedDesc,
-    super.isRequired = true,
-  });
-}
-
-class FcmAlertPermission extends PermissionItem {
-  FcmAlertPermission({
-    required super.title,
-    required super.icon,
-    required super.shortDesc,
-    required super.detailedDesc,
-    super.isRequired = false,
-  });
 }

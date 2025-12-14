@@ -1,42 +1,45 @@
-import 'package:iamhere/user_permission/model/permission_state.dart';
+import 'package:iamhere/user_permission/model/permission_state.dart'
+    as userPermissionModel;
 import 'package:iamhere/user_permission/service/permission_service_interface.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ContactPermissionService implements PermissionServiceInterface {
   @override
-  Future<PermissionState> checkPermissionStatus() {
-    // TODO: implement checkPermissionStatus
-    throw UnimplementedError();
+  Future<bool> isPermissionGranted() async {
+    return await Permission.contacts.isGranted;
   }
 
   @override
-  Future<bool> isPermissionGranted() {
-    // TODO: implement isPermissionGranted
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<PermissionState> requestPermission() {
-    // TODO: implement requestPermission
-    throw UnimplementedError();
-  }
-
-  Future<void> checkPermission() async {
+  Future<userPermissionModel.PermissionState> requestPermission() async {
     final status = await Permission.contacts.request();
-    if (status.isGranted || status.isLimited) {
-      return;
-    }
+    return _mapToPermissionState(status);
+  }
 
-    if (status.isDenied) {
-      throw Exception("연락처 권한을 허용해주세요!");
-    }
+  @override
+  Future<userPermissionModel.PermissionState> checkPermissionStatus() async {
+    final status = await Permission.contacts.status;
+    return _mapToPermissionState(status);
+  }
 
-    if (status.isRestricted) {
-      throw Exception("사용자 기기의 정책으로 인해 접근이 불가능 합니다. 설정에서 정책을 변경해주세요");
-    }
-
-    if (status.isPermanentlyDenied) {
-      throw Exception("연락처 권한이 영구적으로 거부되었습니다. 설정에서 수동으로 허용해주세요.");
+  userPermissionModel.PermissionState _mapToPermissionState(
+    PermissionStatus status,
+  ) {
+    switch (status) {
+      case PermissionStatus.granted:
+      case PermissionStatus.limited:
+        return userPermissionModel
+            .PermissionState
+            .grantedAlways; // 또는 grantedWhenInUse
+      case PermissionStatus.denied:
+        return userPermissionModel.PermissionState.denied;
+      case PermissionStatus.restricted:
+        return userPermissionModel
+            .PermissionState
+            .denied; // 정책상 불가도 거부로 처리하거나 별도 상태 정의
+      case PermissionStatus.permanentlyDenied:
+        return userPermissionModel.PermissionState.permanentlyDenied;
+      case PermissionStatus.provisional: // iOS 임시 권한
+        return userPermissionModel.PermissionState.grantedWhenInUse;
     }
   }
 }

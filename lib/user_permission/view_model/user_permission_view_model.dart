@@ -1,4 +1,8 @@
 import 'package:iamhere/core/di/di_setup.dart';
+import 'package:iamhere/user_permission/model/items/contact_permission_item.dart';
+import 'package:iamhere/user_permission/model/items/fcm_permision_item.dart';
+import 'package:iamhere/user_permission/model/items/location_permission_item.dart';
+import 'package:iamhere/user_permission/model/items/sms_permission_item.dart';
 import 'package:iamhere/user_permission/model/permission_item.dart';
 import 'package:iamhere/user_permission/model/permission_state.dart';
 import 'package:iamhere/user_permission/service/permission_service_interface.dart';
@@ -7,78 +11,62 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'user_permission_view_model.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class UserPermissionViewModel extends _$UserPermissionViewModel {
   @override
-  List<PermissionItem> build() {
-    _checkInitialStatuses();
-    return permissions;
+  Future<List<PermissionItem>> build() async {
+    return await _checkInitialStatuses();
   }
 
-  /// 초기 권한 상태 확인 (앱 시작 시 이미 허용된 권한 체크)
-  Future<void> _checkInitialStatuses() async {
-    final newState = [...state];
-    bool hasChanged = false;
+  /// 초기 권한 상태 확인 로직
+  Future<List<PermissionItem>> _checkInitialStatuses() async {
+    final initialList = [...permissions];
 
-    for (int i = 0; i < newState.length; i++) {
-      hasChanged = await _checkSpecificPermissionState(newState, i, hasChanged);
+    for (int i = 0; i < initialList.length; i++) {
+      final item = initialList[i];
+      final permissionService = _getProperPermissionService(item);
+      final isGranted = await permissionService.isPermissionGranted();
+
+      if (isGranted) {
+        initialList[i] = item.copyWith(isGranted: true);
+      }
     }
 
-    if (hasChanged) {
-      state = newState;
-    }
-  }
-
-  Future<bool> _checkSpecificPermissionState(
-    List<PermissionItem> newState,
-    int i,
-    bool hasChanged,
-  ) async {
-    final permissions = newState[i];
-
-    final permissionService = _getProperPermissionService(permissions);
-    final isGranted = await permissionService.isPermissionGranted();
-
-    if (isGranted) {
-      newState[i] = newState[i].copyWith(isGranted: true);
-      hasChanged = true;
-    }
-    return hasChanged;
+    return initialList;
   }
 
   /// 특정 권한 요청 로직
   Future<bool> requestPermission(int index) async {
-    final targetPermission = state[index];
+    if (!state.hasValue) return false;
+
+    final currentList = [...state.requireValue];
+    final targetPermission = currentList[index];
 
     final properPermissionService = _getProperPermissionService(
       targetPermission,
     );
 
-    // 권한 요청
     final permissionState = await properPermissionService.requestPermission();
 
-    // PermissionState를 bool로 변환
     final isGranted =
         permissionState == PermissionState.grantedAlways ||
         permissionState == PermissionState.grantedWhenInUse;
 
-    // 상태 업데이트: 리스트의 특정 인덱스만 교체
-    final newState = [...state];
-    newState[index] = targetPermission.copyWith(isGranted: isGranted);
-    state = newState;
+    currentList[index] = targetPermission.copyWith(isGranted: isGranted);
+
+    state = AsyncData(currentList);
 
     return isGranted;
   }
 
-  /// PermissionItem 타입에 따라 적절한 PermissionService 반환
   PermissionServiceInterface _getProperPermissionService(PermissionItem item) {
-    if (item is FcmAlertPermission) {
+    if (item is FcmAlertPermissionItem) {
       return getIt<PermissionServiceInterface>(instanceName: 'fcmAlert');
-    } else if (item is LocationPermission) {
+    } else if (item is LocationPermissionItem) {
       return getIt<PermissionServiceInterface>(instanceName: 'location');
-    } else if (item is SmsPermission) {
+    } else if (item is SmsPermissionItem) {
       return getIt<PermissionServiceInterface>(instanceName: 'sms');
-    } else if (item is ContactPermission) {
+    } else if (item is ContactPermissionItem) {
       return getIt<PermissionServiceInterface>(instanceName: 'contact');
     } else {
       throw ArgumentError('Unknown permission item type: ${item.runtimeType}');
