@@ -35,6 +35,7 @@ class _ImHereAppState extends ConsumerState<ImHereApp> {
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
           title: 'ImHere',
           theme: lightTheme,
           routerConfig: routerConfig,
