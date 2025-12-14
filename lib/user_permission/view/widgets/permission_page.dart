@@ -21,42 +21,161 @@ class PermissionPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 16.h),
-          _buildPermissionPageTitle(),
-          const Spacer(),
-          Text(
-            item.detailedDesc,
-            style: TextStyle(fontSize: 17.sp, height: 1.6),
+    // [라벨] 내용 형식을 파싱
+    final List<String> lines = item.detailedDesc.split('\n');
+    final List<Widget> descriptionWidgets = [];
+
+    for (var line in lines) {
+      if (line.trim().isEmpty) {
+        descriptionWidgets.add(SizedBox(height: 12.h));
+        continue;
+      }
+
+      final labelMatch = RegExp(r'^\[(.*?)\]\s*(.*)').firstMatch(line);
+      if (labelMatch != null) {
+        // [라벨] 형식인 경우
+        descriptionWidgets.add(
+          Padding(
+            padding: EdgeInsets.only(bottom: 8.h),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 80.w,
+                  padding: EdgeInsets.only(top: 2.h),
+                  child: Text(
+                    labelMatch.group(1)!,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    labelMatch.group(2)!,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: Colors.grey[800],
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const Spacer(),
+        );
+      } else {
+        // 일반 문구인 경우
+        descriptionWidgets.add(
+          Padding(
+            padding: EdgeInsets.only(bottom: 4.h),
+            child: Text(
+              line,
+              style: TextStyle(
+                fontSize: 15.sp,
+                color: Colors.black87,
+                height: 1.6,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: 24.h),
+          _buildHeader(),
+          SizedBox(height: 32.h),
+          Expanded(
+            child: Center(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: descriptionWidgets,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 20.h),
           _buildButtons(context, ref),
-          SizedBox(height: 10.h),
+          SizedBox(height: 12.h),
         ],
       ),
     );
   }
 
-  Column _buildButtons(BuildContext context, WidgetRef ref) {
-    final laterText = '나중에';
-    final skipText = '건너뛰기 (권장하지 않음)';
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            shape: BoxShape.circle,
+          ),
+          child: Icon(item.icon, size: 32.w, color: Colors.black87),
+        ),
+        SizedBox(width: 16.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.title,
+                style: TextStyle(
+                  fontSize: 22.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              if (item.isRequired)
+                Padding(
+                  padding: EdgeInsets.only(top: 4.h),
+                  child: Text(
+                    '필수 권한',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: Colors.red[700],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildButtons(BuildContext context, WidgetRef ref) {
+    const laterText = '나중에';
+    const skipText = '건너뛰기 (권장하지 않음)';
+
     return Column(
       children: [
         _buildAllowButton(ref),
-        SizedBox(height: 12.h),
-
+        SizedBox(height: 16.h),
         if (!item.isRequired)
-          _buildLaterButton(message: laterText, onPressed: onNext)
+          _buildTextButton(label: laterText, onPressed: onNext)
         else
-          _buildLaterButton(
-            message: skipText,
+          _buildTextButton(
+            label: skipText,
+            isWarning: true,
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("원활한 서비스 이용을 위해 필수 권한입니다.")),
+                const SnackBar(
+                  content: Text("원활한 서비스 이용을 위해 필수 권한입니다."),
+                  behavior: SnackBarBehavior.floating,
+                ),
               );
             },
           ),
@@ -64,60 +183,36 @@ class PermissionPage extends ConsumerWidget {
     );
   }
 
-  TextButton _buildLaterButton({
-    required String message,
+  Widget _buildTextButton({
+    required String label,
     required VoidCallback onPressed,
+    bool isWarning = false,
   }) {
     return TextButton(
       onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: isWarning ? Colors.grey[600] : Colors.grey[500],
+      ),
       child: Text(
-        message,
-        style: TextStyle(color: Colors.grey, fontSize: 15.w),
+        label,
+        style: TextStyle(
+          fontSize: 14.sp,
+          decoration: TextDecoration.underline,
+        ),
       ),
     );
   }
 
   Widget _buildAllowButton(WidgetRef ref) {
     final vm = ref.read(userPermissionViewModelProvider.notifier);
+    const allowText = '허용하기';
 
-    final allowText = '허용하기';
     return BlackButton(
       onPressed: () async {
         await vm.requestPermission(pageIndex - 1);
         onNext();
       },
       message: allowText,
-    );
-  }
-
-  Column _buildPermissionPageTitle() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              item.title,
-              style: TextStyle(fontSize: 32.h, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(width: 5.w),
-            Icon(item.icon, color: Colors.grey[700]),
-          ],
-        ),
-        if (item.isRequired) _buildRequiredText(),
-      ],
-    );
-  }
-
-  Text _buildRequiredText() {
-    final text = ' (필수)';
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: 16.h,
-        color: Colors.red,
-        fontWeight: FontWeight.bold,
-      ),
     );
   }
 }
