@@ -4,8 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iamhere/contact/view_model/contact.dart';
 import 'package:iamhere/contact/view_model/contact_view_model.dart';
 import 'package:iamhere/contact/view_model/contact_view_model_provider.dart';
-import 'package:iamhere/geofence/view/component/recipient_tile.dart';
 import 'package:iamhere/geofence/view_model/recipient_select_view_model.dart';
+
+import 'recipient_tile.dart';
 
 class RecipientSelectView extends ConsumerStatefulWidget {
   final List<int>? initialSelectedIds; // 기존 선택된 수신자 ID 목록

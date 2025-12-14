@@ -5,7 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'geofence_list_view_model.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 class GeofenceListViewModel extends _$GeofenceListViewModel {
   final _geofenceRepository = GetIt.I<GeofenceLocalRepository>();
 

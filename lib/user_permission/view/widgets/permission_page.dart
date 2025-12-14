@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iamhere/common/view_component/black_button.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:iamhere/user_permission/view_model/user_permission_view_model.dart';
 
 import '../../model/permission_item.dart';
 
 /// 개별 권한 요청 페이지 위젯
-class PermissionPage extends StatelessWidget {
+class PermissionPage extends ConsumerWidget {
+  final int pageIndex;
   final PermissionItem item;
   final VoidCallback onNext;
 
-  const PermissionPage({super.key, required this.item, required this.onNext});
+  const PermissionPage({
+    super.key,
+    required this.pageIndex,
+    required this.item,
+    required this.onNext,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24),
       child: Column(
@@ -22,36 +29,26 @@ class PermissionPage extends StatelessWidget {
           SizedBox(height: 16.h),
           _buildPermissionPageTitle(),
           const Spacer(),
-
-          // 상세 설명
           Text(
             item.detailedDesc,
-            style: const TextStyle(
-              fontSize: 17,
-              color: Colors.black54,
-              height: 1.6,
-            ),
+            style: TextStyle(fontSize: 17.sp, height: 1.6),
           ),
-
           const Spacer(),
-
-          _buildButtons(context),
+          _buildButtons(context, ref),
           SizedBox(height: 10.h),
         ],
       ),
     );
   }
 
-  Column _buildButtons(BuildContext context) {
+  Column _buildButtons(BuildContext context, WidgetRef ref) {
     final laterText = '나중에';
     final skipText = '건너뛰기 (권장하지 않음)';
     return Column(
       children: [
-        // 허용하기 버튼
-        _buildAllowButton(),
+        _buildAllowButton(ref),
         SizedBox(height: 12.h),
 
-        // 건너뛰기 버튼 (선택 권한일 때만 표시)
         if (!item.isRequired)
           _buildLaterButton(message: laterText, onPressed: onNext)
         else
@@ -80,16 +77,16 @@ class PermissionPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAllowButton() {
-    final _allowText = '허용하기';
+  Widget _buildAllowButton(WidgetRef ref) {
+    final vm = ref.read(userPermissionViewModelProvider.notifier);
+
+    final allowText = '허용하기';
     return BlackButton(
       onPressed: () async {
-        // 권한 요청
-        await item.permission.request();
-        // 결과와 상관없이 다음 페이지로 넘김 (UX 자연스러움)
+        await vm.requestPermission(pageIndex - 1);
         onNext();
       },
-      message: _allowText,
+      message: allowText,
     );
   }
 
@@ -97,9 +94,15 @@ class PermissionPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          item.title,
-          style: TextStyle(fontSize: 32.h, fontWeight: FontWeight.bold),
+        Row(
+          children: [
+            Text(
+              item.title,
+              style: TextStyle(fontSize: 32.h, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(width: 5.w),
+            Icon(item.icon, color: Colors.grey[700]),
+          ],
         ),
         if (item.isRequired) _buildRequiredText(),
       ],

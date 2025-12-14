@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iamhere/auth/service/auth_state_provider.dart';
 import 'package:iamhere/auth/service/token_storage_service.dart';
 import 'package:iamhere/auth/view/component/login_button.dart';
 import 'package:iamhere/auth/view/component/login_button_info.dart';
 import 'package:iamhere/auth/view/component/right_content_widget.dart';
 import 'package:iamhere/auth/view_model/auth_view_model.dart';
 import 'package:iamhere/common/result/result.dart';
-import 'package:iamhere/common/router/go_router.dart';
 import 'package:iamhere/core/di/di_setup.dart';
 
 class AuthView extends ConsumerStatefulWidget {
@@ -24,21 +24,34 @@ class _AuthViewState extends ConsumerState<AuthView> {
   final String _authorizationRequestDescription = '앱 사용을 위해 다음 권한이 필요해요';
   final List<String> _authorizationElements = ['위치', 'SMS', '연락처', '백그라운드 위치'];
 
+  /// 로그인 처리 로직
   Future<void> _handleLogin() async {
     var result = await widget._authViewModel.handleKakaoLogin();
 
     if (!mounted) return;
+
+    // 로그인 결과 처리
     result.handle(context: context, onSuccess: (data) {}, showSnackBar: false);
 
-    // 로그인 성공 후 토큰 확인 및 화면 전환
+    // 토큰 확인 및 FCM 토큰 서버 전송
     final tokenStorage = getIt<TokenStorageService>();
     final accessToken = await tokenStorage.getAccessToken();
+
     if (accessToken != null && accessToken.isNotEmpty && mounted) {
-      var result = await widget._authViewModel.requestFCMTokenAndSendToServer();
+      var fcmResult = await widget._authViewModel
+          .requestFCMTokenAndSendToServer();
+
       if (!mounted) return;
-      result.handle(
+
+      fcmResult.handle(
         context: context,
-        onSuccess: (data) => {if (context.mounted) router.go('/geofence')},
+        onSuccess: (data) {
+          if (mounted) {
+            // authStateProvider를 invalidate하여 최신 인증 상태 반영
+            // GoRouter의 redirect 로직이 자동으로 /geofence로 이동시킴
+            ref.invalidate(authStateProvider);
+          }
+        },
       );
     }
   }
@@ -56,7 +69,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
             SizedBox(height: 6.h),
             buildAppSubTitle(context),
             SizedBox(height: 270.h),
-            consistLoginButtons(context, ref),
+            consistLoginButtons(context), // ref 전달 불필요 (class 안에 있으므로)
             SizedBox(height: 40.h),
             buildAuthorizationRequestDescription(context),
             SizedBox(height: 10.h),
@@ -66,6 +79,8 @@ class _AuthViewState extends ConsumerState<AuthView> {
       ),
     );
   }
+
+  // ... (Title, SubTitle 메서드는 동일) ...
 
   Text buildAppTitle(BuildContext context) {
     return Text(
@@ -85,14 +100,21 @@ class _AuthViewState extends ConsumerState<AuthView> {
     );
   }
 
-  Widget consistLoginButtons(BuildContext context, WidgetRef ref) {
+  Widget consistLoginButtons(BuildContext context) {
     return Column(
       children: [
-        LoginButton(buttonInfo: LoginInfoData.kakao, onPressed: _handleLogin),
+        LoginButton(
+          buttonInfo: LoginInfoData.kakao,
+          // 5. [핵심] 함수 호출()이 아니라, 함수 자체를 넘겨야 합니다.
+          onPressed: () async {
+            await _handleLogin();
+          },
+        ),
       ],
     );
   }
 
+  // ... (나머지 메서드 동일) ...
   Text buildAuthorizationRequestDescription(BuildContext context) {
     return Text(
       _authorizationRequestDescription,
