@@ -3,7 +3,6 @@ import 'package:iamhere/auth/service/auth_service.dart';
 import 'package:iamhere/auth/view_model/auth_view_model.dart';
 import 'package:iamhere/common/result/error_message.dart';
 import 'package:iamhere/common/result/result.dart';
-import 'package:iamhere/fcm/service/fcm_alert_permission_service.dart';
 import 'package:iamhere/fcm/service/fcm_token_service.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -11,23 +10,17 @@ import 'package:mockito/mockito.dart';
 import 'auth_view_model_test.mocks.dart';
 
 // Mock 클래스 생성을 위한 어노테이션
-@GenerateMocks([AuthService, FcmTokenService, FcmAlertPermissionService])
+@GenerateMocks([AuthService, FcmTokenService])
 void main() {
   late AuthViewModel authViewModel;
   late MockAuthService mockAuthService;
   late MockFcmTokenService mockFcmTokenService;
-  late MockFcmAlertPermissionService mockFcmPermissionService;
 
   setUp(() {
     mockAuthService = MockAuthService();
     mockFcmTokenService = MockFcmTokenService();
-    mockFcmPermissionService = MockFcmAlertPermissionService();
 
-    authViewModel = AuthViewModel(
-      mockAuthService,
-      mockFcmTokenService,
-      mockFcmPermissionService,
-    );
+    authViewModel = AuthViewModel(mockAuthService, mockFcmTokenService);
   });
 
   group('AuthViewModel - handleKakaoLogin', () {
@@ -41,9 +34,6 @@ void main() {
   group('AuthViewModel - requestFCMTokenAndSendToServer', () {
     test('FCM 토큰 생성 성공 시 Success를 반환해야 함', () async {
       // Arrange
-      when(
-        mockFcmPermissionService.requestFcmAlertPermission(),
-      ).thenAnswer((_) async => Future.value());
       when(
         mockFcmTokenService.generateAndSaveFcmToken(),
       ).thenAnswer((_) async => 'test_fcm_token');
@@ -60,16 +50,11 @@ void main() {
       expect(successResult.data, ErrorMessage.fcmTokenGenerateSuccess);
 
       // Verify
-      verify(mockFcmPermissionService.requestFcmAlertPermission()).called(1);
       verify(mockFcmTokenService.generateAndSaveFcmToken()).called(1);
       verify(mockFcmTokenService.enrollFcmTokenToServer()).called(1);
     });
 
     test('FCM 토큰 생성 실패 시 Failure를 반환해야 함', () async {
-      // Arrange
-      when(
-        mockFcmPermissionService.requestFcmAlertPermission(),
-      ).thenAnswer((_) async => Future.value());
       when(
         mockFcmTokenService.generateAndSaveFcmToken(),
       ).thenAnswer((_) async => null);
@@ -81,16 +66,12 @@ void main() {
       expect(result, isA<Failure<ErrorMessage>>());
 
       // Verify - enrollFcmTokenToServer는 호출되지 않아야 함
-      verify(mockFcmPermissionService.requestFcmAlertPermission()).called(1);
       verify(mockFcmTokenService.generateAndSaveFcmToken()).called(1);
       verifyNever(mockFcmTokenService.enrollFcmTokenToServer());
     });
 
     test('FCM 권한 요청이 먼저 호출되어야 함', () async {
       // Arrange
-      when(
-        mockFcmPermissionService.requestFcmAlertPermission(),
-      ).thenAnswer((_) async => Future.value());
       when(
         mockFcmTokenService.generateAndSaveFcmToken(),
       ).thenAnswer((_) async => 'test_fcm_token');
@@ -102,17 +83,11 @@ void main() {
       await authViewModel.requestFCMTokenAndSendToServer();
 
       // Assert - 호출 순서 검증
-      verifyInOrder([
-        mockFcmPermissionService.requestFcmAlertPermission(),
-        mockFcmTokenService.generateAndSaveFcmToken(),
-      ]);
+      verifyInOrder([mockFcmTokenService.generateAndSaveFcmToken()]);
     });
 
     test('FCM 토큰 서버 등록 성공 시 로그가 출력되어야 함', () async {
       // Arrange
-      when(
-        mockFcmPermissionService.requestFcmAlertPermission(),
-      ).thenAnswer((_) async => Future.value());
       when(
         mockFcmTokenService.generateAndSaveFcmToken(),
       ).thenAnswer((_) async => 'test_fcm_token');
@@ -130,9 +105,6 @@ void main() {
 
     test('FCM 토큰 서버 등록 실패 시에도 Success를 반환해야 함 (로그만 출력)', () async {
       // Arrange
-      when(
-        mockFcmPermissionService.requestFcmAlertPermission(),
-      ).thenAnswer((_) async => Future.value());
       when(
         mockFcmTokenService.generateAndSaveFcmToken(),
       ).thenAnswer((_) async => 'test_fcm_token');
@@ -152,11 +124,7 @@ void main() {
   group('AuthViewModel - 의존성 및 구조 테스트', () {
     test('AuthService 의존성이 올바르게 주입되어야 함', () {
       // Arrange & Act
-      final viewModel = AuthViewModel(
-        mockAuthService,
-        mockFcmTokenService,
-        mockFcmPermissionService,
-      );
+      final viewModel = AuthViewModel(mockAuthService, mockFcmTokenService);
 
       // Assert
       expect(viewModel, isNotNull);
@@ -164,11 +132,7 @@ void main() {
 
     test('FcmTokenService 의존성이 올바르게 주입되어야 함', () {
       // Arrange & Act
-      final viewModel = AuthViewModel(
-        mockAuthService,
-        mockFcmTokenService,
-        mockFcmPermissionService,
-      );
+      final viewModel = AuthViewModel(mockAuthService, mockFcmTokenService);
 
       // Assert
       expect(viewModel, isNotNull);
@@ -176,11 +140,7 @@ void main() {
 
     test('FcmAlertPermissionService 의존성이 올바르게 주입되어야 함', () {
       // Arrange & Act
-      final viewModel = AuthViewModel(
-        mockAuthService,
-        mockFcmTokenService,
-        mockFcmPermissionService,
-      );
+      final viewModel = AuthViewModel(mockAuthService, mockFcmTokenService);
 
       // Assert
       expect(viewModel, isNotNull);
@@ -221,51 +181,27 @@ void main() {
       verify(mockFcmTokenService.generateAndSaveFcmToken()).called(1);
     });
 
-    test(
-      'FcmAlertPermissionService.requestFcmAlertPermission이 호출 가능해야 함',
-      () async {
+    group('AuthViewModel - 에러 처리', () {
+      test('FCM 권한 요청 중 예외 발생 시 예외를 전파해야 함', () async {
+        // Act & Assert
+        expect(
+          () => authViewModel.requestFCMTokenAndSendToServer(),
+          throwsA(isA<Exception>()),
+        );
+      });
+
+      test('FCM 토큰 생성 중 예외 발생 시 예외를 전파해야 함', () async {
         // Arrange
         when(
-          mockFcmPermissionService.requestFcmAlertPermission(),
-        ).thenAnswer((_) async => Future.value());
+          mockFcmTokenService.generateAndSaveFcmToken(),
+        ).thenThrow(Exception('Token generation failed'));
 
-        // Act
-        await mockFcmPermissionService.requestFcmAlertPermission();
-
-        // Assert
-        verify(mockFcmPermissionService.requestFcmAlertPermission()).called(1);
-      },
-    );
-  });
-
-  group('AuthViewModel - 에러 처리', () {
-    test('FCM 권한 요청 중 예외 발생 시 예외를 전파해야 함', () async {
-      // Arrange
-      when(
-        mockFcmPermissionService.requestFcmAlertPermission(),
-      ).thenThrow(Exception('Permission denied'));
-
-      // Act & Assert
-      expect(
-        () => authViewModel.requestFCMTokenAndSendToServer(),
-        throwsA(isA<Exception>()),
-      );
-    });
-
-    test('FCM 토큰 생성 중 예외 발생 시 예외를 전파해야 함', () async {
-      // Arrange
-      when(
-        mockFcmPermissionService.requestFcmAlertPermission(),
-      ).thenAnswer((_) async => Future.value());
-      when(
-        mockFcmTokenService.generateAndSaveFcmToken(),
-      ).thenThrow(Exception('Token generation failed'));
-
-      // Act & Assert
-      expect(
-        () => authViewModel.requestFCMTokenAndSendToServer(),
-        throwsA(isA<Exception>()),
-      );
+        // Act & Assert
+        expect(
+          () => authViewModel.requestFCMTokenAndSendToServer(),
+          throwsA(isA<Exception>()),
+        );
+      });
     });
   });
 }

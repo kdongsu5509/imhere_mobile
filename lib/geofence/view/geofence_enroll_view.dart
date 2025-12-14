@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iamhere/common/view_component/primary_button.dart';
 import 'package:iamhere/common/view_component/section_title.dart';
 import 'package:iamhere/common/view_component/select_button.dart';
 import 'package:iamhere/common/view_component/text_input_field.dart';
-import 'package:iamhere/geofence/view/component/map_select_view.dart';
-import 'package:iamhere/geofence/view/component/recipient_select_view.dart';
 import 'package:iamhere/contact/view_model/contact.dart';
 import 'package:iamhere/geofence/view_model/geofence_enroll_view_model.dart';
 import 'package:iamhere/geofence/view_model/geofence_list_view_model.dart';
+
+import 'widget/map_select_view.dart';
+import 'widget/recipient_select_view.dart';
 
 class GeofenceEnrollView extends ConsumerStatefulWidget {
   const GeofenceEnrollView({super.key});

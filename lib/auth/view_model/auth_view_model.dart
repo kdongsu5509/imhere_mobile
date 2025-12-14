@@ -4,7 +4,6 @@ import 'package:iamhere/auth/service/auth_service.dart';
 import 'package:iamhere/auth/view_model/auth_view_model_interface.dart';
 import 'package:iamhere/common/result/error_message.dart';
 import 'package:iamhere/common/result/result.dart';
-import 'package:iamhere/fcm/service/fcm_alert_permission_service.dart';
 import 'package:iamhere/fcm/service/fcm_token_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
@@ -13,13 +12,8 @@ import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 class AuthViewModel implements AuthViewModelInterface {
   final AuthService _authService;
   final FcmTokenService _fcmTokenService;
-  final FcmAlertPermissionService _fcmPermissionService;
 
-  AuthViewModel(
-    this._authService,
-    this._fcmTokenService,
-    this._fcmPermissionService,
-  );
+  AuthViewModel(this._authService, this._fcmTokenService);
 
   @override
   Future<Result<ErrorMessage>> handleKakaoLogin() async {
@@ -37,8 +31,6 @@ class AuthViewModel implements AuthViewModelInterface {
 
   @override
   Future<Result<ErrorMessage>> requestFCMTokenAndSendToServer() async {
-    await _fcmPermissionService.requestFcmAlertPermission();
-
     // FCM 토큰 발급 및 로컬 저장
     final fcmToken = await _fcmTokenService.generateAndSaveFcmToken();
 

@@ -7,14 +7,15 @@ import 'package:get_it/get_it.dart';
 import 'package:iamhere/contact/repository/contact_entity.dart';
 import 'package:iamhere/contact/repository/contact_local_repository.dart';
 import 'package:iamhere/geofence/repository/geofence_entity.dart';
-import 'package:iamhere/geofence/service/my_location_service.dart';
-import 'package:iamhere/geofence/service/sms_permission_service.dart';
 import 'package:iamhere/geofence/service/sms_service.dart';
 import 'package:iamhere/geofence/view_model/geofence_list_view_model.dart';
 import 'package:iamhere/record/repository/geofence_record_entity.dart';
 import 'package:iamhere/record/repository/geofence_record_local_repository.dart';
+import 'package:iamhere/user_permission/service/concrete/locate_permission_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../user_permission/model/permission_state.dart';
+import '../../user_permission/service/concrete/sms_permission_service.dart';
 import '../repository/geofence_local_repository.dart';
 
 part 'geofence_monitoring_service.g.dart';
@@ -30,9 +31,7 @@ class GeofenceMonitoringService extends _$GeofenceMonitoringService {
   final _contactRepository = GetIt.I<ContactLocalRepository>();
 
   @override
-  Future<void> build() async {
-    // 초기화
-  }
+  Future<void> build() async {}
 
   /// 지오펜스 모니터링 시작
   Future<void> startMonitoring() async {
@@ -43,12 +42,12 @@ class GeofenceMonitoringService extends _$GeofenceMonitoringService {
 
     // 위치 권한 확인 및 요청
     try {
-      final locationService = MyLocationService();
+      final locationService = LocatePermissionService();
       final permissionState = await locationService
           .requestLocationPermissions();
 
-      if (permissionState != LocationPermissionState.grantedAlways &&
-          permissionState != LocationPermissionState.grantedWhenInUse) {
+      if (permissionState != PermissionState.grantedAlways &&
+          permissionState != PermissionState.grantedWhenInUse) {
         log('위치 권한이 허용되지 않아 모니터링을 시작할 수 없습니다: ${permissionState.name}');
         throw Exception('위치 권한이 필요합니다. 설정에서 위치 권한을 허용해주세요.');
       }
@@ -57,7 +56,7 @@ class GeofenceMonitoringService extends _$GeofenceMonitoringService {
       try {
         final smsPermissionService = SmsPermissionService();
         final hasSmsPermission = await smsPermissionService
-            .isSmsPermissionGranted();
+            .isPermissionGranted();
         if (!hasSmsPermission) {
           log('SMS 권한이 없습니다. 지오펜스 진입 시 SMS 앱을 열어 전송하도록 합니다.');
         } else {
