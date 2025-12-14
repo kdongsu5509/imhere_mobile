@@ -1,32 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:iamhere/user_permission/model/items/contact_permission_item.dart';
+import 'package:iamhere/user_permission/model/items/fcm_permision_item.dart';
+import 'package:iamhere/user_permission/model/items/location_permission_item.dart';
+import 'package:iamhere/user_permission/model/items/sms_permission_item.dart';
 import 'package:iamhere/user_permission/model/permission_item.dart';
 
-enum RequiredPermissions { fcmAlert, contact, sms, location }
-
 final List<PermissionItem> permissions = [
-  FcmAlertPermission(
-    // permission: Permission.notification,
+  FcmAlertPermissionItem(
     icon: Icons.alarm_on,
     title: "알림",
     shortDesc: "문자 발송 알림",
     detailedDesc: _createDesc(_alertPermissionDesc),
   ),
-  ContactPermission(
-    // permission: Permission.contacts,
+  ContactPermissionItem(
     icon: Icons.contact_phone,
     title: "연락처",
     shortDesc: "연락 보낼 친구 추가",
     detailedDesc: _createDesc(_contactPermissionDesc),
   ),
-  SmsPermission(
-    // permission: Permission.sms,
+  SmsPermissionItem(
     icon: Icons.sms_outlined,
     title: "문자 발송",
     shortDesc: "문자 자동 발송",
     detailedDesc: _createDesc(_smsPermissionDesc),
   ),
-  LocationPermission(
-    // permission: Permission.location,
+  LocationPermissionItem(
     icon: Icons.pin_drop_outlined,
     title: "위치 정보",
     shortDesc: "내 위치 확인",
