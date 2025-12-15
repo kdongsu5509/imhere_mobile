@@ -43,18 +43,26 @@ class DefaultView extends ConsumerWidget {
         selectedIndex,
         _onItemTapped,
       ),
-      floatingActionButton: FloatingActionButton(
-        shape: const CircleBorder(),
-        child: Icon(
-          Icons.add_rounded,
-          color: theme.colorScheme.surface,
-          size: 28.sp, // 반응형 크기 적용
-        ),
-        onPressed: () {
-          routerConfig.go("/geofence/enroll");
-        },
-      ),
+      floatingActionButton: _shouldShowFab(context)
+          ? FloatingActionButton(
+              shape: const CircleBorder(),
+              child: Icon(
+                Icons.add_rounded,
+                color: theme.colorScheme.surface,
+                size: 28.sp, // 반응형 크기 적용
+              ),
+              onPressed: () {
+                routerConfig.go("/geofence/enroll");
+              },
+            )
+          : null,
     );
+  }
+
+  bool _shouldShowFab(BuildContext context) {
+    final location = GoRouter.of(context).state.uri.toString();
+    // 정확히 '/geofence' 또는 '/record' 일 때만 FAB 표시
+    return location == '/geofence' || location == '/record';
   }
 
   // ********** AppBar 관련 위젯 **********
