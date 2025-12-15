@@ -9,7 +9,12 @@ class DefaultView extends ConsumerWidget {
 
   final String _appTitle = 'Imhere';
 
-  static final List<String> tabs = ['/geofence', '/contact', '/record'];
+  static final List<String> tabs = [
+    '/geofence',
+    '/contact',
+    '/record',
+    '/setting',
+  ];
 
   const DefaultView({super.key, required this.child});
 
@@ -115,7 +120,14 @@ class DefaultView extends ConsumerWidget {
           icon: Icon(Icons.people_outline_outlined),
           label: '연락처',
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.history), label: '기록'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.history_outlined),
+          label: '기록',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.settings_outlined),
+          label: '설정',
+        ),
       ],
       currentIndex: currentIndex,
       onTap: (index) => onTap(context, index),

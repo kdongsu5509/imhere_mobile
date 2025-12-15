@@ -7,6 +7,7 @@ import 'package:iamhere/core/di/di_setup.dart';
 import 'package:iamhere/geofence/view/geofence_enroll_view.dart';
 import 'package:iamhere/geofence/view/geofence_view.dart';
 import 'package:iamhere/record/view/record_view.dart';
+import 'package:iamhere/setting/view/setting_view.dart';
 import 'package:iamhere/user_permission/view/user_permission_view.dart';
 
 import 'custom_page_transition/buttom_up_transition.dart';
@@ -60,6 +61,14 @@ final List<RouteBase> appRoutes = [
           context: context,
           state: state,
           child: const RecordView(),
+        ),
+      ),
+      GoRoute(
+        path: '/setting',
+        pageBuilder: (context, state) => buildPageWithSimpleTransition(
+          context: context,
+          state: state,
+          child: const SettingView(),
         ),
       ),
     ],
