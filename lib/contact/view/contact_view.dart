@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:iamhere/common/view_component/page_title.dart';
+import 'package:iamhere/common/view_component/widgets/page_title.dart';
 import 'package:iamhere/contact/view/component/contact_tile.dart';
 import 'package:iamhere/contact/view_model/contact.dart';
 import 'package:iamhere/contact/view_model/contact_view_model.dart';
