@@ -1,10 +1,15 @@
-# ImHere (Iamhere)
+# ImHere
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/7215ad20-63f7-4cc8-ae69-daaef59c03bf" width=750/>
+  <img src="./images/main-image.png" width=750/>
 </p>
 
 # 0. 프로젝트 개요
-**ImHere**는 위치 기반 알림 서비스를 제공하는 모바일 애플리케이션입니다. 사용자가 특정 위치(지오펜스)에 진입하면 지정된 연락처로 자동으로 문자를 전송하는 기능을 제공합니다.
+- 해당 프로젝트는 "버스 터미널 도착 30분 전에 연락해" 라는 부모님의 말에서 시작되었습니다.
+    - 서울 -> 거제로 이동하는 버스에서 항상 잠을 잤는데, 도착 30분전에 연락을 위해 일어나는 것이 사실상 불가능하였고, 이를 해결하기 위해 위치 기반으로 문자를 보내면 되겠다는 생각을 하였습니다.
+
+### 주요 화면
+
+##### 명시적 권한 요청 화면
 
 <p align="center">
   <img src="./images/permissions_intro_view.jpg" width = 150>
@@ -14,12 +19,14 @@
   <img src="./images/location_request_view.jpg" width = 150>
 </p>
 
+##### 서비스 화면
+
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/322034c1-2c2b-4746-bbe3-a440e2ec6f77" width = 150>
-  <img src="https://github.com/user-attachments/assets/7c806fc7-cf19-4cd4-8c19-cc64610117e2" width = 150>
-  <img src="https://github.com/user-attachments/assets/f59685de-e388-4cb4-bc8b-64905a8998b3" width = 150>
-  <img src="https://github.com/user-attachments/assets/beef310c-ec39-4201-8f5b-70fdf309cddf" width = 150>
-  <img src="https://github.com/user-attachments/assets/c0278a9b-268f-44f9-9c27-3e2ee73c17f4" width = 150>
+  <img src="./images/geofence_view.jpg" width = 150>
+  <img src="./images/enroll_view.jpg" width = 150>
+  <img src="./images/contact_view.jpg" width = 150>
+  <img src="./images/record_view.jpg" width = 150>
+  <img src="./images/setting_view.jpg" width = 150>
 </p>
 
 ### 주요 특징
@@ -36,7 +43,7 @@
 ## 1. 기술 스택 및 라이브러리
 
 ### Framework & Architecture
-- **Tech**: Flutter, Dart
+- **Tech**: ![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white) ![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)
 - **Pattern**: MVVM + Repository Pattern
 - **State Management**: Flutter Riverpod + Generator
 - **Dependency Injection**: GetIt + Injectable
@@ -44,7 +51,7 @@
 ### Key Libraries
 - **UI & Map**: GoRouter, Flutter Naver Map, Flutter ScreenUtil
 - **Network & Data**: Dio, Sqflite, Flutter Secure Storage
-- **Features**: Firebase (FCM/Analytics), Kakao SDK, Geolocator, Permission Handler
+- **Features**: ![Firebase](https://img.shields.io/badge/firebase-a08021?style=for-the-badge&logo=firebase&logoColor=ffcd34) (FCM/Analytics), 	![KakaoTalk](https://img.shields.io/badge/kakaotalk-ffcd00.svg?style=for-the-badge&logo=kakaotalk&logoColor=000000), Geolocator, Permission Handler
 
 ---
 
