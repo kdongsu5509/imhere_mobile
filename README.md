@@ -88,6 +88,24 @@
 - 카카오 SDK를 이용한 소셜 로그인
 - 서버와의 연동을 통한 JWT 토큰 관리
 - 보안 저장소를 통한 토큰 안전 보관 및 자동 갱신
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as App (Flutter)
+    participant K as Kakao Auth Server
+    participant S as Server (Spring Boot)
+    participant DB as Flutter Secure Storage
+
+    U->>A: '카카오 로그인' 클릭
+    A->>K: 로그인 요청
+    K-->>A: OIDC 발급
+    A->>S: 로그인/회원가입 요청 (OIDC 전달)
+    Note over S: 1. 카카오 토큰 유효성 검증<br/>2. 사용자 정보 조회/가입<br/>3. 서비스 전용 JWT(AT, RT) 생성
+    S-->>A: Access Token + Refresh Token 발급
+    A->>DB: 토큰 암호화 저장 (Keychain/Keystore)
+    DB-->>A: 저장 완료
+    A->>U: 메인 화면 이동 (로그인 or 회원가입 완료)
+```
 
 #### 지오펜스 관리
 - **지오펜스 목록**: 등록된 감시 영역 조회
