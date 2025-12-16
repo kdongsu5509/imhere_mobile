@@ -11,23 +11,27 @@
 
 ##### 명시적 권한 요청 화면
 
-<p align="center">
-  <img src="./images/permissions_intro_view.jpg" width = 150>
-  <img src="./images/alert_request_view.jpg" width = 150>
-  <img src="./images/contact_request_view.jpg" width = 150>
-  <img src="./images/sms_request_view.jpg" width = 150>
-  <img src="./images/location_request_view.jpg" width = 150>
-</p>
+<table align="center">
+  <tr>
+    <td align="center"><img src="./images/permissions_intro_view.jpg" width="150"></td>
+    <td align="center"><img src="./images/alert_request_view.jpg" width="150"></td>
+    <td align="center"><img src="./images/contact_request_view.jpg" width="150"></td>
+    <td align="center"><img src="./images/sms_request_view.jpg" width="150"></td>
+    <td align="center"><img src="./images/location_request_view.jpg" width="150"></td>
+  </tr>
+</table>
 
 ##### 서비스 화면
 
-<p align="center">
-  <img src="./images/geofence_view.jpg" width = 150>
-  <img src="./images/enroll_view.jpg" width = 150>
-  <img src="./images/contact_view.jpg" width = 150>
-  <img src="./images/record_view.jpg" width = 150>
-  <img src="./images/setting_view.jpg" width = 150>
-</p>
+<table align="center">
+  <tr>
+    <td align="center"><img src="./images/geofence_view.jpg" width="150"></td>
+    <td align="center"><img src="./images/enroll_view.jpg" width="150"></td>
+    <td align="center"><img src="./images/contact_view.jpg" width="150"></td>
+    <td align="center"><img src="./images/record_view.jpg" width="150"></td>
+    <td align="center"><img src="./images/setting_view.jpg" width="150"></td>
+  </tr>
+</table>
 
 ### 주요 특징
 
