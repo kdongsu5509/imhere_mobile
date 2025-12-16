@@ -36,26 +36,49 @@
 ### 주요 특징
 
 - **명시적 권한 안내**: Google 정책에 맞게 명시적 권한 요청 화면
+- **카카오 소셜 로그인**: 간편한 인증을 위한 카카오 OAuth2 로그인 지원
 - **지오펜스 관리**: 특정 위치와 반경을 설정하여 지오펜스 영역을 등록하고 관리
 - **위치 기반 알림**: 지오펜스 진입/이탈 시 자동 알림 발송
 - **연락처 연동**: 기기 연락처와 연동하여 알림 수신자 관리
 - **기록 관리**: 지오펜스 알림 발송 이력 조회
-- **카카오 소셜 로그인**: 간편한 인증을 위한 카카오 OAuth2 로그인 지원
 
 ---
 
-## 1. 기술 스택 및 라이브러리
+## *1. Skills*
+- ![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white) ![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)
 
-### Framework & Architecture
-- **Tech**: ![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white) ![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)
-- **Pattern**: MVVM + Repository Pattern
-- **State Management**: Flutter Riverpod + Generator
-- **Dependency Injection**: GetIt + Injectable
+### Libraries
+- **State Management**
+    - `flutter_riverpod`: 전역 상태 관리, 비동기 로직 처리 및 의존성 주입을 안전하게 구현
 
-### Key Libraries
-- **UI & Map**: GoRouter, Flutter Naver Map, Flutter ScreenUtil
-- **Network & Data**: Dio, Sqflite, Flutter Secure Storage
-- **Features**: ![Firebase](https://img.shields.io/badge/firebase-a08021?style=for-the-badge&logo=firebase&logoColor=ffcd34) (FCM/Analytics), 	![KakaoTalk](https://img.shields.io/badge/kakaotalk-ffcd00.svg?style=for-the-badge&logo=kakaotalk&logoColor=000000), Geolocator, Permission Handler
+- **Architecture & DI**
+    - `go_router`: 딥링크 지원 및 직관적인 페이지 이동을 위한 선언형 라우팅 시스템
+    - `get_it`, `injectable`: 의존성 주입(DI) 코드 자동 생성 및 서비스 로케이터 패턴 적용
+
+- **Network & Data**
+    - `dio`: Interceptor, Timeout 등 강력한 기능을 제공하는 HTTP 클라이언트
+    - `json_annotation`: JSON 직렬화/역직렬화(Serialization) 보일러플레이트 코드 자동화
+
+- **Local Storage & Security**
+    - `sqflite`: 로컬 데이터 영속성을 위한 내장형 관계형 데이터베이스(SQLite)
+    - `flutter_secure_storage`: Access Token 등 민감한 정보를 Keystore/Keychain에 안전하게 저장
+    - `flutter_dotenv`: API Key 등 민감한 환경 설정을 코드와 분리하여 보안 강화
+
+- **Map & Location**
+    - `flutter_naver_map`: 국내 환경에 최적화된 네이버 지도 SDK 연동 및 오버레이 구현
+    - `geolocator`: 디바이스의 실시간 GPS 좌표 수집 및 위치 권한 상태 확인
+
+- **Firebase & Notification**
+    - `firebase_core`, `firebase_messaging`: Firebase 프로젝트 초기화 및 FCM 푸시 알림 수신
+    - `flutter_local_notifications`: 포그라운드 알림 노출 및 로컬 알림 스케줄링 관리
+    - `firebase_crashlytics`: 앱 비정상 종료(Crash) 로그 수집 및 안정성 모니터링
+    - `firebase_analytics`: 사용자 행동 패턴 및 이벤트 데이터 분석
+
+- **UI & Utils**
+    - `flutter_screenutil`: 다양한 디바이스 화면 크기에 대응하는 반응형 레이아웃 구성
+    - `kakao_flutter_sdk`: 카카오 로그인 인증 및 공유하기 기능 연동
+    - `permission_handler`: 런타임 접근 권한 요청 프로세스 및 거부 상태 핸들링
+    - `package_info_plus`: 앱의 버전 정보 및 빌드 번호 등 메타데이터 조회
 
 ---
 
