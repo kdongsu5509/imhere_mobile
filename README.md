@@ -595,9 +595,31 @@ flutter test
 ```
 
 #### 테스트 커버리지 확인
+
+##### Windows
+```shell
+# lcov 설치 (관리자 권한 PowerShell 필요)
+choco install lcov
+
+# 권한 부여 (스크립트 실행 허용 정책 설정 - 최초 1회)
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# 실행 (프로젝트 루트에서)
+.\scripts\obvious_test.ps1
+```
+
+##### Mac
 ```bash
-flutter test --coverage
-# 리포트는 coverage/lcov.info 확인
+# lcov 설치
+brew install lcov      
+
+# 권한 부여
+# 권한 부여 (최초 1회)
+chmod +x scripts/obvious_test.sh
+
+# 실행
+./scripts/obvious_test.sh
+
 ```
 
 ---
