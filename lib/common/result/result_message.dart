@@ -1,4 +1,4 @@
-enum ErrorMessage {
+enum ResultMessage {
   // 카카오 로그인
   kakaoAuthSuccess('카카오 로그인 성공'),
   kakaoAuthFail('카카오 로그인 실패'),
@@ -17,6 +17,6 @@ enum ErrorMessage {
   // 알 수 없는 에러
   unknownError('알 수 없는 오류가 발생하였습니다.');
 
-  const ErrorMessage(this.message);
+  const ResultMessage(this.message);
   final String message;
 }

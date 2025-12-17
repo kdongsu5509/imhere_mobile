@@ -1,202 +1,108 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:iamhere/auth/service/token_storage_service.dart';
 import 'package:iamhere/auth/view/auth_view.dart';
+import 'package:iamhere/auth/view/component/login_button.dart';
 import 'package:iamhere/auth/view_model/auth_view_model.dart';
-import 'package:iamhere/common/result/error_message.dart';
 import 'package:iamhere/common/result/result.dart';
+import 'package:iamhere/common/result/result_message.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'auth_view_test.mocks.dart';
 
-// Mock 클래스 생성을 위한 어노테이션
-@GenerateMocks([AuthViewModel, TokenStorageService])
+@GenerateNiceMocks([MockSpec<AuthViewModel>(), MockSpec<TokenStorageService>()])
 void main() {
   late MockAuthViewModel mockAuthViewModel;
-  late MockTokenStorageService mockTokenStorage;
+  late MockTokenStorageService mockTokenStorageService;
 
-  setUp(() {
+  provideDummy<Result<ResultMessage>>(
+      Success(ResultMessage.kakaoAuthSuccess)
+  );
+
+  setUp(() async {
     mockAuthViewModel = MockAuthViewModel();
-    mockTokenStorage = MockTokenStorageService();
+    mockTokenStorageService = MockTokenStorageService();
 
-    // Mockito에 Result<ErrorMessage> 타입의 더미 값 제공
-    provideDummy<Result<ErrorMessage>>(Success(ErrorMessage.kakaoAuthSuccess));
-
-    // GetIt 설정
-    GetIt.instance.reset();
-    GetIt.instance.registerSingleton<TokenStorageService>(mockTokenStorage);
+    await GetIt.instance.reset();
+    GetIt.instance.registerSingleton<TokenStorageService>(mockTokenStorageService);
   });
 
-  tearDown(() {
-    GetIt.instance.reset();
+  tearDown(() async {
+    await GetIt.instance.reset();
   });
+
+  Widget createWidgetUnderTest() {
+    return ProviderScope(
+      child: ScreenUtilInit(
+        designSize: const Size(402, 874),
+        builder: (context, child) {
+          return MaterialApp(
+            home: AuthView(mockAuthViewModel),
+          );
+        },
+      ),
+    );
+  }
 
   group('AuthView Widget Tests', () {
-    testWidgets('AuthView가 정상적으로 생성되어야 함', (WidgetTester tester) async {
-      // // Arrange
-      // when(mockAuthViewModel.handleKakaoLogin())
-      //     .thenAnswer((_) async => Success(ErrorMessage.KAKAO_AUTH_SUCCESS));
+    testWidgets('화면 요소들이 정상적으로 렌더링 되어야 한다', (WidgetTester tester) async {
+      // given & when
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 3.0;
 
-      // Act & Assert - 위젯이 정상적으로 생성되는지 확인
-      expect(() => AuthView(mockAuthViewModel), returnsNormally);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // then
+      expect(find.text('Imhere'), findsOneWidget); // 타이틀 확인
+      expect(find.text('정해진 장소를 지나면 문자를 보낼게요!'), findsOneWidget); // 서브타이틀 확인
+      expect(find.byType(LoginButton), findsOneWidget); // 로그인 버튼 확인
+      expect(find.text('위치'), findsOneWidget); // 권한 텍스트 확인
     });
 
-    testWidgets('AuthView가 ConsumerStatefulWidget 타입이어야 함', (
-      WidgetTester tester,
-    ) async {
-      // Arrange
-      final authView = AuthView(mockAuthViewModel);
+    testWidgets('로그인 버튼을 누르면 로그인 로직이 순차적으로 실행되어야 한다', (WidgetTester tester) async {
+      // given (시나리오 설정)
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 3.0;
 
-      // Assert
-      expect(authView, isA<ConsumerStatefulWidget>());
-    });
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    testWidgets('_AuthViewState의 초기 상수 값들이 올바르게 설정되어야 함', (
-      WidgetTester tester,
-    ) async {
-      // 이 테스트는 AuthView 내부의 상수값들이 올바르게 정의되어 있는지 확인합니다.
-      // 실제로는 private 변수이므로 간접적으로 검증합니다.
+      // 1. 카카오 로그인 성공 가정
+      when(mockAuthViewModel.handleKakaoLogin())
+          .thenAnswer((_) async => Success(ResultMessage.kakaoAuthSuccess));
 
-      // Assert - AuthView 생성이 정상적으로 되는지 확인
-      expect(() => AuthView(mockAuthViewModel), returnsNormally);
-    });
+      // 2. 토큰 가져오기 성공 가정
+      when(mockTokenStorageService.getAccessToken())
+          .thenAnswer((_) async => 'mock_access_token');
 
-    testWidgets('AuthViewModel 의존성이 null이 아니어야 함', (WidgetTester tester) async {
-      // Arrange
-      final authView = AuthView(mockAuthViewModel);
+      // 3. FCM 토큰 전송 성공 가정
+      when(mockAuthViewModel.requestFCMTokenAndSendToServer())
+          .thenAnswer((_) async => Success(ResultMessage.fcmTokenServerSuccess));
 
-      // Assert - AuthViewModel이 주입되었는지 확인
-      expect(authView, isNotNull);
-    });
-  });
+      // when (화면 빌드 및 버튼 탭)
+      await tester.pumpWidget(createWidgetUnderTest());
 
-  group('AuthView 구조 테스트', () {
-    test('AuthView는 AuthViewModel을 필수로 받아야 함', () {
-      // Arrange & Act
-      final authView = AuthView(mockAuthViewModel);
+      final loginButton = find.byType(LoginButton);
+      await tester.tap(loginButton);
 
-      // Assert
-      expect(authView, isNotNull);
-      expect(authView, isA<ConsumerStatefulWidget>());
-    });
+      // 비동기 로직들이 실행될 시간을 줌
+      await tester.pumpAndSettle();
 
-    test('MockAuthViewModel이 handleKakaoLogin을 호출할 수 있어야 함', () async {
-      // Arrange
-      when(
-        mockAuthViewModel.handleKakaoLogin(),
-      ).thenAnswer((_) async => Success(ErrorMessage.kakaoAuthSuccess));
-
-      // Act
-      final result = await mockAuthViewModel.handleKakaoLogin();
-
-      // Assert
-      expect(result, isA<Success<ErrorMessage>>());
+      // then (검증)
+      // 1. 뷰모델의 handleKakaoLogin이 호출되었는지
       verify(mockAuthViewModel.handleKakaoLogin()).called(1);
-    });
 
-    test(
-      'MockAuthViewModel이 requestFCMTokenAndSendToServer를 호출할 수 있어야 함',
-      () async {
-        // Arrange
-        when(mockAuthViewModel.requestFCMTokenAndSendToServer()).thenAnswer(
-          (_) async => Success(ErrorMessage.fcmTokenGenerateSuccess),
-        );
+      // 2. 스토리지에서 토큰을 가져왔는지 (GetIt을 통해)
+      verify(mockTokenStorageService.getAccessToken()).called(1);
 
-        // Act
-        final result = await mockAuthViewModel.requestFCMTokenAndSendToServer();
-
-        // Assert
-        expect(result, isA<Success<ErrorMessage>>());
-        verify(mockAuthViewModel.requestFCMTokenAndSendToServer()).called(1);
-      },
-    );
-  });
-
-  group('AuthViewModel Mock 동작 테스트', () {
-    test('로그인 성공 시나리오', () async {
-      // Arrange
-      when(
-        mockAuthViewModel.handleKakaoLogin(),
-      ).thenAnswer((_) async => Success(ErrorMessage.kakaoAuthSuccess));
-
-      // Act
-      final result = await mockAuthViewModel.handleKakaoLogin();
-
-      // Assert
-      expect(result, isA<Success<ErrorMessage>>());
-      final successResult = result as Success<ErrorMessage>;
-      expect(successResult.data, ErrorMessage.kakaoAuthSuccess);
-    });
-
-    test('로그인 실패 시나리오', () async {
-      // Arrange
-      when(
-        mockAuthViewModel.handleKakaoLogin(),
-      ).thenAnswer((_) async => Failure('로그인 실패'));
-
-      // Act
-      final result = await mockAuthViewModel.handleKakaoLogin();
-
-      // Assert
-      expect(result, isA<Failure<ErrorMessage>>());
-    });
-
-    test('FCM 토큰 생성 성공 시나리오', () async {
-      // Arrange
-      when(
-        mockAuthViewModel.requestFCMTokenAndSendToServer(),
-      ).thenAnswer((_) async => Success(ErrorMessage.fcmTokenGenerateSuccess));
-
-      // Act
-      final result = await mockAuthViewModel.requestFCMTokenAndSendToServer();
-
-      // Assert
-      expect(result, isA<Success<ErrorMessage>>());
-      final successResult = result as Success<ErrorMessage>;
-      expect(successResult.data, ErrorMessage.fcmTokenGenerateSuccess);
-    });
-
-    test('FCM 토큰 생성 실패 시나리오', () async {
-      // Arrange
-      when(
-        mockAuthViewModel.requestFCMTokenAndSendToServer(),
-      ).thenAnswer((_) async => Failure('FCM 토큰 생성 실패'));
-
-      // Act
-      final result = await mockAuthViewModel.requestFCMTokenAndSendToServer();
-
-      // Assert
-      expect(result, isA<Failure<ErrorMessage>>());
-    });
-  });
-
-  group('TokenStorageService Mock 동작 테스트', () {
-    test('토큰이 있을 때', () async {
-      // Arrange
-      when(
-        mockTokenStorage.getAccessToken(),
-      ).thenAnswer((_) async => 'test_token');
-
-      // Act
-      final token = await mockTokenStorage.getAccessToken();
-
-      // Assert
-      expect(token, 'test_token');
-      expect(token, isNotNull);
-      expect(token, isNotEmpty);
-    });
-
-    test('토큰이 없을 때', () async {
-      // Arrange
-      when(mockTokenStorage.getAccessToken()).thenAnswer((_) async => null);
-
-      // Act
-      final token = await mockTokenStorage.getAccessToken();
-
-      // Assert
-      expect(token, isNull);
+      // 3. FCM 토큰 전송 요청을 했는지
+      verify(mockAuthViewModel.requestFCMTokenAndSendToServer()).called(1);
     });
   });
 }
