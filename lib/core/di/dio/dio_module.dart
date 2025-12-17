@@ -104,10 +104,7 @@ class _RequestRetrier {
 
     if (_dio == null) {
       pending.handler.reject(
-        DioException(
-          requestOptions: options,
-          error: 'Dio instance not set',
-        ),
+        DioException(requestOptions: options, error: 'Dio instance not set'),
       );
       return;
     }

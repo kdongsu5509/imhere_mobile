@@ -5,11 +5,7 @@ class ContactEntity {
 
   ContactEntity({this.id, required this.name, required this.number});
 
-  ContactEntity copyWith({
-    int? id,
-    String? name,
-    String? number,
-  }) {
+  ContactEntity copyWith({int? id, String? name, String? number}) {
     return ContactEntity(
       id: id ?? this.id,
       name: name ?? this.name,
