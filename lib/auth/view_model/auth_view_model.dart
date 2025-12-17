@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:iamhere/auth/service/auth_service.dart';
 import 'package:iamhere/auth/view_model/auth_view_model_interface.dart';
-import 'package:iamhere/common/result/error_message.dart';
+import 'package:iamhere/common/result/result_message.dart';
 import 'package:iamhere/common/result/result.dart';
 import 'package:iamhere/fcm/service/fcm_token_service.dart';
 import 'package:injectable/injectable.dart';
@@ -16,30 +16,30 @@ class AuthViewModel implements AuthViewModelInterface {
   AuthViewModel(this._authService, this._fcmTokenService);
 
   @override
-  Future<Result<ErrorMessage>> handleKakaoLogin() async {
+  Future<Result<ResultMessage>> handleKakaoLogin() async {
     String? idToken;
     var result = await _doUserKakaoLogin();
     switch (result) {
       case Success(data: var d):
         idToken = d;
         await _authService.sendIdTokenToServer(idToken!);
-        return Success(ErrorMessage.kakaoAuthSuccess);
+        return Success(ResultMessage.kakaoAuthSuccess);
       case Failure():
-        return Failure(ErrorMessage.kakaoAuthFail.toString());
+        return Failure(ResultMessage.kakaoAuthFail.toString());
     }
   }
 
   @override
-  Future<Result<ErrorMessage>> requestFCMTokenAndSendToServer() async {
+  Future<Result<ResultMessage>> requestFCMTokenAndSendToServer() async {
     // FCM 토큰 발급 및 로컬 저장
     final fcmToken = await _fcmTokenService.generateAndSaveFcmToken();
 
     if (fcmToken == null) {
-      return Failure(ErrorMessage.fcmTokenGenerateFail.toString());
+      return Failure(ResultMessage.fcmTokenGenerateFail.toString());
     }
 
     await _enrollFcmTokenToServer(_fcmTokenService);
-    return Success(ErrorMessage.fcmTokenGenerateSuccess);
+    return Success(ResultMessage.fcmTokenGenerateSuccess);
   }
 
   /// 카카오 로그인 담당 로직

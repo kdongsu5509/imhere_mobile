@@ -1,7 +1,7 @@
-import 'package:iamhere/common/result/error_message.dart';
+import 'package:iamhere/common/result/result_message.dart';
 import 'package:iamhere/common/result/result.dart';
 
 abstract class AuthViewModelInterface {
-  Future<Result<ErrorMessage>> handleKakaoLogin();
-  Future<Result<ErrorMessage>> requestFCMTokenAndSendToServer();
+  Future<Result<ResultMessage>> handleKakaoLogin();
+  Future<Result<ResultMessage>> requestFCMTokenAndSendToServer();
 }

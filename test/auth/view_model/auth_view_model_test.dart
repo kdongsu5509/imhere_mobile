@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:iamhere/auth/service/auth_service.dart';
 import 'package:iamhere/auth/view_model/auth_view_model.dart';
-import 'package:iamhere/common/result/error_message.dart';
+import 'package:iamhere/common/result/result_message.dart';
 import 'package:iamhere/common/result/result.dart';
 import 'package:iamhere/fcm/service/fcm_token_service.dart';
 import 'package:mockito/annotations.dart';
@@ -45,9 +45,9 @@ void main() {
       final result = await authViewModel.requestFCMTokenAndSendToServer();
 
       // Assert
-      expect(result, isA<Success<ErrorMessage>>());
-      final successResult = result as Success<ErrorMessage>;
-      expect(successResult.data, ErrorMessage.fcmTokenGenerateSuccess);
+      expect(result, isA<Success<ResultMessage>>());
+      final successResult = result as Success<ResultMessage>;
+      expect(successResult.data, ResultMessage.fcmTokenGenerateSuccess);
 
       // Verify
       verify(mockFcmTokenService.generateAndSaveFcmToken()).called(1);
@@ -63,7 +63,7 @@ void main() {
       final result = await authViewModel.requestFCMTokenAndSendToServer();
 
       // Assert
-      expect(result, isA<Failure<ErrorMessage>>());
+      expect(result, isA<Failure<ResultMessage>>());
 
       // Verify - enrollFcmTokenToServer는 호출되지 않아야 함
       verify(mockFcmTokenService.generateAndSaveFcmToken()).called(1);
@@ -99,7 +99,7 @@ void main() {
       final result = await authViewModel.requestFCMTokenAndSendToServer();
 
       // Assert
-      expect(result, isA<Success<ErrorMessage>>());
+      expect(result, isA<Success<ResultMessage>>());
       verify(mockFcmTokenService.enrollFcmTokenToServer()).called(1);
     });
 
@@ -116,7 +116,7 @@ void main() {
       final result = await authViewModel.requestFCMTokenAndSendToServer();
 
       // Assert - 서버 등록 실패해도 Success 반환 (토큰 생성은 성공했으므로)
-      expect(result, isA<Success<ErrorMessage>>());
+      expect(result, isA<Success<ResultMessage>>());
       verify(mockFcmTokenService.enrollFcmTokenToServer()).called(1);
     });
   });
