@@ -3,7 +3,7 @@ import 'package:iamhere/auth/service/auth_service_interface.dart';
 import 'package:iamhere/auth/service/dto/login_request_dto.dart';
 import 'package:iamhere/auth/service/token_storage_service.dart';
 import 'package:iamhere/common/result/error_analyst.dart';
-import 'package:iamhere/common/result/error_message.dart';
+import 'package:iamhere/common/result/result_message.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
@@ -38,8 +38,8 @@ class AuthService implements AuthServiceInterface {
         }
       }
     } on DioException catch (e, stack) {
-      ErrorAnalyst.log(ErrorMessage.dioException.toString(), stack);
-      throw Exception(ErrorMessage.dioException);
+      ErrorAnalyst.log(ResultMessage.dioException.toString(), stack);
+      throw Exception(ResultMessage.dioException);
     }
   }
 }
