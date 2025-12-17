@@ -32,33 +32,36 @@ void main() {
         'refreshToken': testRefreshToken,
       };
 
-      when(mockDio.post(
-        any,
-        data: anyNamed('data'),
-      )).thenAnswer((_) async => Response(
-            data: responseData,
-            statusCode: 200,
-            requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-          ));
+      when(mockDio.post(any, data: anyNamed('data'))).thenAnswer(
+        (_) async => Response(
+          data: responseData,
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+        ),
+      );
 
-      when(mockTokenStorage.saveAccessToken(any))
-          .thenAnswer((_) async => Future.value());
-      when(mockTokenStorage.saveRefreshToken(any))
-          .thenAnswer((_) async => Future.value());
+      when(
+        mockTokenStorage.saveAccessToken(any),
+      ).thenAnswer((_) async => Future.value());
+      when(
+        mockTokenStorage.saveRefreshToken(any),
+      ).thenAnswer((_) async => Future.value());
 
       // Act
       await authService.sendIdTokenToServer(testIdToken);
 
       // Assert
-      verify(mockDio.post(
-        '/api/v1/auth/login',
-        data: argThat(
-          isA<Map<String, dynamic>>()
-              .having((m) => m['provider'], 'provider', 'KAKAO')
-              .having((m) => m['idToken'], 'idToken', testIdToken),
-          named: 'data',
+      verify(
+        mockDio.post(
+          '/api/v1/auth/login',
+          data: argThat(
+            isA<Map<String, dynamic>>()
+                .having((m) => m['provider'], 'provider', 'KAKAO')
+                .having((m) => m['idToken'], 'idToken', testIdToken),
+            named: 'data',
+          ),
         ),
-      )).called(1);
+      ).called(1);
 
       verify(mockTokenStorage.saveAccessToken(testAccessToken)).called(1);
       verify(mockTokenStorage.saveRefreshToken(testRefreshToken)).called(1);
@@ -71,19 +74,20 @@ void main() {
         'refreshToken': testRefreshToken,
       };
 
-      when(mockDio.post(
-        any,
-        data: anyNamed('data'),
-      )).thenAnswer((_) async => Response(
-            data: responseData,
-            statusCode: 201,
-            requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-          ));
+      when(mockDio.post(any, data: anyNamed('data'))).thenAnswer(
+        (_) async => Response(
+          data: responseData,
+          statusCode: 201,
+          requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+        ),
+      );
 
-      when(mockTokenStorage.saveAccessToken(any))
-          .thenAnswer((_) async => Future.value());
-      when(mockTokenStorage.saveRefreshToken(any))
-          .thenAnswer((_) async => Future.value());
+      when(
+        mockTokenStorage.saveAccessToken(any),
+      ).thenAnswer((_) async => Future.value());
+      when(
+        mockTokenStorage.saveRefreshToken(any),
+      ).thenAnswer((_) async => Future.value());
 
       // Act
       await authService.sendIdTokenToServer(testIdToken);
@@ -95,21 +99,19 @@ void main() {
 
     test('성공: accessToken만 있을 때 accessToken만 저장해야 함', () async {
       // Arrange
-      final responseData = {
-        'accessToken': testAccessToken,
-      };
+      final responseData = {'accessToken': testAccessToken};
 
-      when(mockDio.post(
-        any,
-        data: anyNamed('data'),
-      )).thenAnswer((_) async => Response(
-            data: responseData,
-            statusCode: 200,
-            requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-          ));
+      when(mockDio.post(any, data: anyNamed('data'))).thenAnswer(
+        (_) async => Response(
+          data: responseData,
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+        ),
+      );
 
-      when(mockTokenStorage.saveAccessToken(any))
-          .thenAnswer((_) async => Future.value());
+      when(
+        mockTokenStorage.saveAccessToken(any),
+      ).thenAnswer((_) async => Future.value());
 
       // Act
       await authService.sendIdTokenToServer(testIdToken);
@@ -121,21 +123,19 @@ void main() {
 
     test('성공: refreshToken만 있을 때 refreshToken만 저장해야 함', () async {
       // Arrange
-      final responseData = {
-        'refreshToken': testRefreshToken,
-      };
+      final responseData = {'refreshToken': testRefreshToken};
 
-      when(mockDio.post(
-        any,
-        data: anyNamed('data'),
-      )).thenAnswer((_) async => Response(
-            data: responseData,
-            statusCode: 200,
-            requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-          ));
+      when(mockDio.post(any, data: anyNamed('data'))).thenAnswer(
+        (_) async => Response(
+          data: responseData,
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+        ),
+      );
 
-      when(mockTokenStorage.saveRefreshToken(any))
-          .thenAnswer((_) async => Future.value());
+      when(
+        mockTokenStorage.saveRefreshToken(any),
+      ).thenAnswer((_) async => Future.value());
 
       // Act
       await authService.sendIdTokenToServer(testIdToken);
@@ -147,19 +147,15 @@ void main() {
 
     test('성공: 토큰이 null일 때 저장하지 않아야 함', () async {
       // Arrange
-      final responseData = {
-        'accessToken': null,
-        'refreshToken': null,
-      };
+      final responseData = {'accessToken': null, 'refreshToken': null};
 
-      when(mockDio.post(
-        any,
-        data: anyNamed('data'),
-      )).thenAnswer((_) async => Response(
-            data: responseData,
-            statusCode: 200,
-            requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-          ));
+      when(mockDio.post(any, data: anyNamed('data'))).thenAnswer(
+        (_) async => Response(
+          data: responseData,
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+        ),
+      );
 
       // Act
       await authService.sendIdTokenToServer(testIdToken);
@@ -176,14 +172,13 @@ void main() {
         'refreshToken': testRefreshToken,
       };
 
-      when(mockDio.post(
-        any,
-        data: anyNamed('data'),
-      )).thenAnswer((_) async => Response(
-            data: responseData,
-            statusCode: 401,
-            requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-          ));
+      when(mockDio.post(any, data: anyNamed('data'))).thenAnswer(
+        (_) async => Response(
+          data: responseData,
+          statusCode: 401,
+          requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+        ),
+      );
 
       // Act
       await authService.sendIdTokenToServer(testIdToken);
@@ -200,19 +195,37 @@ void main() {
         'refreshToken': testRefreshToken,
       };
 
-      when(mockDio.post(
-        any,
-        data: anyNamed('data'),
-      )).thenAnswer((_) async => Response(
-            data: responseData,
-            statusCode: 500,
-            requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-          ));
+      when(mockDio.post(any, data: anyNamed('data'))).thenAnswer(
+        (_) async => Response(
+          data: responseData,
+          statusCode: 500,
+          requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+        ),
+      );
 
       // Act
       await authService.sendIdTokenToServer(testIdToken);
 
       // Assert
+      verifyNever(mockTokenStorage.saveAccessToken(any));
+      verifyNever(mockTokenStorage.saveRefreshToken(any));
+    });
+
+    test('DIO 에러 발생 시 다시 오류를 던진다', () async {
+      //given
+      final requestOptions = RequestOptions(path: '/api/v1/auth/login');
+
+      when(
+        mockDio.post(any, data: anyNamed('data')),
+      ).thenThrow(DioException(requestOptions: requestOptions));
+
+      // when, then
+      expect(
+        authService.sendIdTokenToServer(testIdToken),
+        throwsA(isA<DioException>()),
+      );
+
+      // then
       verifyNever(mockTokenStorage.saveAccessToken(any));
       verifyNever(mockTokenStorage.saveRefreshToken(any));
     });
