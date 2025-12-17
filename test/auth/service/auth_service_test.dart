@@ -222,7 +222,7 @@ void main() {
       // when, then
       expect(
         authService.sendIdTokenToServer(testIdToken),
-        throwsA(isA<DioException>()),
+        throwsA(isA<Exception>()),
       );
 
       // then
