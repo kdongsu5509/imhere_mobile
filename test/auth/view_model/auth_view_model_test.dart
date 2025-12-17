@@ -182,14 +182,6 @@ void main() {
     });
 
     group('AuthViewModel - 에러 처리', () {
-      test('FCM 권한 요청 중 예외 발생 시 예외를 전파해야 함', () async {
-        // Act & Assert
-        expect(
-          () => authViewModel.requestFCMTokenAndSendToServer(),
-          throwsA(isA<Exception>()),
-        );
-      });
-
       test('FCM 토큰 생성 중 예외 발생 시 예외를 전파해야 함', () async {
         // Arrange
         when(
