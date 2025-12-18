@@ -4,24 +4,23 @@
 </p>
 
 # 0. 프로젝트 개요
-- 해당 프로젝트는 "버스 터미널 도착 30분 전에 연락해" 라는 부모님의 말에서 시작되었습니다.
-    - 서울 -> 거제로 이동하는 버스에서 항상 잠을 잤는데, 도착 30분전에 연락을 위해 일어나는 것이 사실상 불가능하였고, 이를 해결하기 위해 위치 기반으로 문자를 보내면 되겠다는 생각을 하였습니다.
 
+### Motivation
+**"버스 도착하기 30분 전에는 꼭 연락하거라."**
+
+장거리 이동 중 깊은 잠에 들어 부모님과의 약속을 지키지 못했던 경험에서 이 프로젝트는 시작되었습니다. "사용자가 신경 쓰지 않아도, 특정 위치에 도달하면 자동으로 알림을 보낼 수는 없을까?"라는 단순한 질문이 본 프로젝트의 핵심 아이디어입니다.
+
+단순한 타이머가 아닌 실시간 위치 정보를 활용하여, 장거리 여행자나 정기적으로 특정 지점을 통과하는 사용자들에게 정서적 안정감과 편의성을 제공하고자 합니다.
 ### 주요 화면
-
-##### 명시적 권한 요청 화면
 
 <table align="center">
   <tr>
     <td align="center"><img src="./images/permissions_intro_view.jpg" width="150"></td>
     <td align="center"><img src="./images/alert_request_view.jpg" width="150"></td>
     <td align="center"><img src="./images/contact_request_view.jpg" width="150"></td>
-    <td align="center"><img src="./images/sms_request_view.jpg" width="150"></td>
     <td align="center"><img src="./images/location_request_view.jpg" width="150"></td>
   </tr>
 </table>
-
-##### 서비스 화면
 
 <table align="center">
   <tr>
@@ -83,7 +82,6 @@
 - **Platform Integration**
     - **Method Channel**: Flutter와 네이티브 플랫폼(Android/iOS) 간 양방향 통신을 위한 플랫폼 채널 활용
         - 지오펜스 백그라운드 모니터링: Android `GeofencingClient`, iOS `CLLocationManager` 네이티브 API 직접 제어
-        - SMS 발송: Android `SmsManager`를 통한 직접 문자 발송 기능 구현
         - 백그라운드 위치 추적 및 이벤트 트리거 처리
 
 ---
@@ -139,7 +137,7 @@ sequenceDiagram
     Native->>Native: 7. 실시간 위치 추적
     Native->>Event: 8. 영역 진입/이탈 감지
     Event->>Channel: 9. Flutter 레이어로 이벤트 전달
-    Channel->>Action: 10. 자체 문자 발송 (SmsManager)<br/>& FCM 요청
+    Channel->>Action: 10. 문자 발송 API 호출 -> FCM 요청
 ```
 
 
@@ -249,8 +247,8 @@ lib
 │   │   └── local_database_service.dart
 │   ├── result
 │   │   ├── error_analyst.dart
-│   │   ├── error_message.dart
-│   │   └── result.dart
+│   │   ├── result.dart
+│   │   └── result_message.dart
 │   ├── router
 │   │   ├── custom_page_transition
 │   │   │   ├── buttom_up_transition.dart
@@ -311,7 +309,13 @@ lib
 │       ├── fcm_token_service.dart
 │       └── fcm_token_storage_service.dart
 ├── firebase_init_helper.dart
+├── firebase_options.dart
 ├── geofence
+│   ├── model
+│   │   ├── message_send_request.dart
+│   │   ├── message_send_request.g.dart
+│   │   ├── multiple_message_send_request.dart
+│   │   └── multiple_message_send_request.g.dart
 │   ├── repository
 │   │   ├── geofence_entity.dart
 │   │   ├── geofence_local_repository.dart
@@ -378,8 +382,7 @@ lib
     │   ├── concrete
     │   │   ├── contact_permission_service.dart
     │   │   ├── fcm_alert_permission_service.dart
-    │   │   ├── locate_permission_service.dart
-    │   │   └── sms_permission_service.dart
+    │   │   └── locate_permission_service.dart
     │   ├── permission_service_interface.dart
     │   └── status_to_permission_state_converter.dart
     ├── view
@@ -416,7 +419,7 @@ lib
 - **주요 컴포넌트**:
   - `PermissionServiceInterface`: 권한별 서비스 추상화 인터페이스
   - `UserPermissionView`: PageView 기반 순차적 권한 요청 UI
-  - **지원 권한**: 위치(Location), 연락처(Contact), SMS, FCM 알림
+  - **지원 권한**: 위치(Location), 연락처(Contact), FCM 알림
 
 #### 4. Common (공통 모듈)
 - **Router**: `GoRouter` 기반 선언형 라우팅
@@ -437,7 +440,6 @@ lib
 2. **PermissionPage**: 각 권한에 대한 상세 설명 및 개별 요청
    - 알림 권한 (FCM)
    - 연락처 권한
-   - SMS 권한
    - 위치 권한 (Background 포함)
 3. **FinishPage**: 온보딩 완료 및 메인 화면 진입
 
