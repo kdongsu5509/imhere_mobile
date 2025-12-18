@@ -18,12 +18,6 @@ final List<PermissionItem> permissions = [
     shortDesc: "연락 보낼 친구 추가",
     detailedDesc: _createDesc(_contactPermissionDesc),
   ),
-  SmsPermissionItem(
-    icon: Icons.sms_outlined,
-    title: "문자 발송",
-    shortDesc: "문자 자동 발송",
-    detailedDesc: _createDesc(_smsPermissionDesc),
-  ),
   LocationPermissionItem(
     icon: Icons.pin_drop_outlined,
     title: "위치 정보",
@@ -60,16 +54,6 @@ final _contactPermissionDesc = [
   '',
   '주소록에 있는 친구들을 해당 서비스에 등록할 수 있어요.',
   '연락처 정보는 오직 문자 발송 대상을 선택할 때만 사용됩니다.',
-];
-
-final _smsPermissionDesc = [
-  '[사용 기능] SMS 자동 발송',
-  '[발송 시점] 사용자가 설정한 위치를 통과할 때',
-  '[데이터 저장] 문자 내용과 발송 대상은 기기에만 저장됩니다',
-  '[서버 전송] 문자 내용 및 수신자 정보는 서버로 전송되지 않습니다',
-  '',
-  '특정 위치를 지날 때 문자를 자동으로 발송하기 위해 필요해요.',
-  '사용자가 직접 설정한 조건에서만 문자가 발송됩니다.',
 ];
 
 final _locationPermissionDesc = [
