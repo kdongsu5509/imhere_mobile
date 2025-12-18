@@ -22,7 +22,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
   final String _appTitle = 'Imhere';
   final String _subTitle = '정해진 장소를 지나면 문자를 보낼게요!';
   final String _authorizationRequestDescription = '앱 사용을 위해 다음 권한이 필요해요';
-  final List<String> _authorizationElements = ['위치', 'SMS', '연락처', '백그라운드 위치'];
+  final List<String> _authorizationElements = ['알람', '연락처', '위치'];
 
   /// 로그인 처리 로직
   Future<void> _handleLogin() async {

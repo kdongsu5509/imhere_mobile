@@ -1,7 +1,6 @@
 import 'package:iamhere/user_permission/service/concrete/contact_permission_service.dart';
 import 'package:iamhere/user_permission/service/concrete/fcm_alert_permission_service.dart';
 import 'package:iamhere/user_permission/service/concrete/locate_permission_service.dart';
-import 'package:iamhere/user_permission/service/concrete/sms_permission_service.dart';
 import 'package:iamhere/user_permission/service/permission_service_interface.dart';
 import 'package:injectable/injectable.dart';
 
@@ -12,9 +11,6 @@ abstract class PermissionServiceModule {
 
   @Named('fcmAlert')
   PermissionServiceInterface get fcmAlertService => FcmAlertPermissionService();
-
-  @Named('sms')
-  PermissionServiceInterface get smsService => SmsPermissionService();
 
   @Named('contact')
   PermissionServiceInterface get contactService => ContactPermissionService();

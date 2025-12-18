@@ -58,10 +58,6 @@ class SettingView extends ConsumerWidget {
           ),
         ),
         SettingItem(
-          title: '문자 메시지 권한',
-          trailingText: _mapPermissionStateToString(state.smsPermission),
-        ),
-        SettingItem(
           title: '위치 추적',
           trailingText: _mapPermissionStateToString(state.locationPermission),
         ),

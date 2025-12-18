@@ -64,8 +64,6 @@ class UserPermissionViewModel extends _$UserPermissionViewModel {
       return getIt<PermissionServiceInterface>(instanceName: 'fcmAlert');
     } else if (item is LocationPermissionItem) {
       return getIt<PermissionServiceInterface>(instanceName: 'location');
-    } else if (item is SmsPermissionItem) {
-      return getIt<PermissionServiceInterface>(instanceName: 'sms');
     } else if (item is ContactPermissionItem) {
       return getIt<PermissionServiceInterface>(instanceName: 'contact');
     } else {

@@ -10,13 +10,11 @@ part 'setting_view_model.g.dart';
 @riverpod
 class SettingViewModel extends _$SettingViewModel {
   late final PermissionServiceInterface _fcmService;
-  late final PermissionServiceInterface _smsService;
   late final PermissionServiceInterface _locationService;
 
   @override
   Future<SettingViewModelState> build() async {
     _fcmService = GetIt.I<PermissionServiceInterface>(instanceName: 'fcmAlert');
-    _smsService = GetIt.I<PermissionServiceInterface>(instanceName: 'sms');
     _locationService = GetIt.I<PermissionServiceInterface>(
       instanceName: 'location',
     );
@@ -26,7 +24,6 @@ class SettingViewModel extends _$SettingViewModel {
 
   Future<SettingViewModelState> _fetchInitialState() async {
     final push = await _fcmService.checkPermissionStatus();
-    final sms = await _smsService.checkPermissionStatus();
     final location = await _locationService.checkPermissionStatus();
 
     final packageInfo = await PackageInfo.fromPlatform();
@@ -38,7 +35,6 @@ class SettingViewModel extends _$SettingViewModel {
 
     return SettingViewModelState(
       pushPermission: push,
-      smsPermission: sms,
       locationPermission: location,
       appVersion: versionString,
     );
