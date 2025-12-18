@@ -173,7 +173,7 @@ class GeofenceMonitoringService extends _$GeofenceMonitoringService {
 
       // SMS 전송
       final smsService = SmsService(ref: ref);
-      final success = await smsService.sendSmsToMultipleRecipients(
+      final success = await smsService.sendSms(
         phoneNumbers: phoneNumbers,
         message: geofence.message,
       );

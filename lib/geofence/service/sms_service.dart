@@ -2,14 +2,18 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iamhere/core/di/di_setup.dart';
+import 'package:iamhere/geofence/model/message_send_request.dart';
+import 'package:iamhere/geofence/model/multiple_message_send_request.dart';
 
 class SmsService {
   final Ref ref;
   SmsService({required this.ref});
 
   final _sendToMeApiPath = '/api/v1/notification/self';
-  final _sendSmsViaServerApiPath = '/api/v1/message';
+  final _sendSmsToSingleApiPath = '/api/v1/message/send';
+  final _sendSmsToMultiApiPath = '/api/v1/message/multipleSend';
 
+  /// FCM 관련 요청 로직
   Future<void> sendNotificationToMe() async {
     try {
       final dio = getIt.get<Dio>();
@@ -36,7 +40,7 @@ class SmsService {
       }
 
       // 전화번호에서 숫자만 추출
-      List<String> cleanPhoneNumbers = extractOnlyNumberFromPhoneNumber(
+      List<String> cleanPhoneNumbers = _extractOnlyNumberFromPhoneNumber(
         phoneNumbers,
       );
 
@@ -44,10 +48,12 @@ class SmsService {
         return false;
       }
 
-      return await sendSmsToMultipleRecipients(
-        phoneNumbers: cleanPhoneNumbers,
-        message: message,
-      );
+      ///TODO : change this part.
+      if(cleanPhoneNumbers.length == 1) {
+        return await _sendSingleSms(phoneNumber: cleanPhoneNumbers[0], message: message);
+      } else {
+        return await _sendMultiSms(phoneNumbers: cleanPhoneNumbers, message: message);
+      }
     } catch (e) {
       debugPrint('SMS 전송 실패: $e');
       return false;
@@ -60,7 +66,7 @@ class SmsService {
     if (phoneNumbers.isEmpty) {
       return [];
     }
-    List<String> cleanPhoneNumbers = extractOnlyNumberFromPhoneNumber(
+    List<String> cleanPhoneNumbers = _extractOnlyNumberFromPhoneNumber(
       phoneNumbers,
     );
     if (cleanPhoneNumbers.isEmpty) {
@@ -70,7 +76,7 @@ class SmsService {
     return cleanPhoneNumbers;
   }
 
-  List<String> extractOnlyNumberFromPhoneNumber(List<String> phoneNumbers) {
+  List<String> _extractOnlyNumberFromPhoneNumber(List<String> phoneNumbers) {
     final cleanPhoneNumbers = phoneNumbers
         .map((phone) => phone.replaceAll(RegExp(r'[^\d]'), ''))
         .where((phone) => phone.isNotEmpty)
@@ -78,14 +84,7 @@ class SmsService {
     return cleanPhoneNumbers;
   }
 
-  Future<bool> sendSmsToMultipleRecipients({
-    required List<String> phoneNumbers,
-    required String message,
-  }) async {
-    return await sendSms(phoneNumbers: phoneNumbers, message: message);
-  }
-
-  Future<bool> _sendSingleSmsOnServer({
+  Future<bool> _sendSingleSms({
     required String phoneNumber,
     required String message,
   }) async {
@@ -93,8 +92,8 @@ class SmsService {
 
     try {
       final response = await dio.post(
-        _sendSmsViaServerApiPath,
-        data: {'message': message, 'receiverNumber': phoneNumber},
+        _sendSmsToSingleApiPath,
+        data : MessageSendRequest(message: message, receiverNumber: phoneNumber).toJson()
       );
 
       final httpStatusCode = response.statusCode;
@@ -113,22 +112,38 @@ class SmsService {
     }
   }
 
-  Future<bool> _sendMultipleSmsOnServer({
+
+  Future<bool> _sendMultiSms({
     required List<String> phoneNumbers,
     required String message,
   }) async {
-    bool status = true;
-    for (int i = 0; i < phoneNumbers.length; i++) {
-      var bool = await _sendSingleSmsOnServer(
-        phoneNumber: phoneNumbers[i],
-        message: message,
-      );
+    final dio = getIt.get<Dio>();
 
-      if (bool == false) {
-        status = false;
-      }
+    final List<MessageSendRequest> requests = [];
+    for(var phoneNumber in phoneNumbers) {
+      requests.add(MessageSendRequest(message: message, receiverNumber: phoneNumber));
     }
 
-    return status;
+
+    try {
+      final response = await dio.post(
+          _sendSmsToMultiApiPath,
+          data : MultipleMessageSendRequest(requests: requests).toJson()
+      );
+
+      final httpStatusCode = response.statusCode;
+
+      final isSuccess = (httpStatusCode == 200 || httpStatusCode == 201);
+
+      // SMS 전송 성공 시 FCM 알림 전송
+      if (isSuccess) {
+        await sendNotificationToMe();
+      }
+
+      return isSuccess;
+    } catch (e) {
+      debugPrint("서버를 통한 메시지 요청 시도 실패");
+      return false;
+    }
   }
 }
