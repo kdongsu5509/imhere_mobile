@@ -15,7 +15,6 @@ import 'package:iamhere/user_permission/service/concrete/locate_permission_servi
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../user_permission/model/permission_state.dart';
-import '../../user_permission/service/concrete/sms_permission_service.dart';
 import '../repository/geofence_local_repository.dart';
 
 part 'geofence_monitoring_service.g.dart';
@@ -50,20 +49,6 @@ class GeofenceMonitoringService extends _$GeofenceMonitoringService {
           permissionState != PermissionState.grantedWhenInUse) {
         log('위치 권한이 허용되지 않아 모니터링을 시작할 수 없습니다: ${permissionState.name}');
         throw Exception('위치 권한이 필요합니다. 설정에서 위치 권한을 허용해주세요.');
-      }
-
-      // SMS 권한 확인 (Android만)
-      try {
-        final smsPermissionService = SmsPermissionService();
-        final hasSmsPermission = await smsPermissionService
-            .isPermissionGranted();
-        if (!hasSmsPermission) {
-          log('SMS 권한이 없습니다. 지오펜스 진입 시 SMS 앱을 열어 전송하도록 합니다.');
-        } else {
-          log('SMS 권한이 허용되어 자동 전송이 가능합니다.');
-        }
-      } catch (e) {
-        log('SMS 권한 확인 중 오류: $e');
       }
 
       // 위치 업데이트 스트림 설정
