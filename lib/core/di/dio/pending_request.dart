@@ -28,7 +28,7 @@ class RequestRetrier {
     _pendingRequests.clear();
   }
 
-  void _retryRequest(PendingRequest pending, String token) async {
+  Future<void> _retryRequest(PendingRequest pending, String token) async {
     pending.requestOptions.headers['Authorization'] = 'Bearer $token';
     try {
       final response = await _dio!.fetch(pending.requestOptions);

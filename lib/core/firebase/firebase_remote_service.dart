@@ -15,5 +15,10 @@ class FirebaseRemoteService {
     await _remoteConfig.fetchAndActivate();
   }
 
-  String get baseUrl => _remoteConfig.getString('base_url');
+  String? get baseUrlOrNull {
+    if (_remoteConfig.lastFetchStatus != RemoteConfigFetchStatus.success) {
+      return null;
+    }
+    return _remoteConfig.getValue('base_url').asString();
+  }
 }
