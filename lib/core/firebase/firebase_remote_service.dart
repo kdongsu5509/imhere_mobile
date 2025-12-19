@@ -11,6 +11,8 @@ class FirebaseRemoteService {
         minimumFetchInterval: kDebugMode ? Duration.zero : const Duration(hours: 12),
       ),
     );
+
+    await _remoteConfig.fetchAndActivate();
   }
 
   String get baseUrl => _remoteConfig.getString('base_url');
