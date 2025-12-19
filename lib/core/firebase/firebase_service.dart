@@ -10,12 +10,16 @@ class FirebaseService {
   factory FirebaseService() => _instance;
   FirebaseService._internal();
 
-  final FirebaseRemoteService remoteConfig = FirebaseRemoteService();
-  final FirebaseCrashlyticsService crashlyticsService = FirebaseCrashlyticsService();
-  final FirebaseCloudMessageService fcmService = FirebaseCloudMessageService();
+  late final FirebaseRemoteService remoteConfig;
+  late final FirebaseCrashlyticsService crashlyticsService;
+  late final FirebaseCloudMessageService fcmService;
 
   Future<void> initialize() async {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+    crashlyticsService = FirebaseCrashlyticsService();
+    fcmService = FirebaseCloudMessageService();
+    remoteConfig = FirebaseRemoteService();
 
     await crashlyticsService.initialize();
     await fcmService.initialize();

@@ -23,8 +23,13 @@ class TokenRefresher {
 
   Future<String?> _saveTokens(Response response) async {
     if (response.statusCode != 200) return null;
-    final access = response.data['accessToken'];
-    final refresh = response.data['refreshToken'];
+
+    final data = response.data;
+    if (data == null || data is! Map) return null;
+
+    final access = data['accessToken'];
+    final refresh = data['refreshToken'];
+
     if (access != null) await _tokenStorage.saveAccessToken(access);
     if (refresh != null) await _tokenStorage.saveRefreshToken(refresh);
     return access;

@@ -16,9 +16,10 @@ class FirebaseRemoteService {
   }
 
   String? get baseUrlOrNull {
-    if (_remoteConfig.lastFetchStatus != RemoteConfigFetchStatus.success) {
+    final String value = _remoteConfig.getString('base_url');
+    if (value.trim().isEmpty) {
       return null;
     }
-    return _remoteConfig.getValue('base_url').asString();
+    return value;
   }
 }
