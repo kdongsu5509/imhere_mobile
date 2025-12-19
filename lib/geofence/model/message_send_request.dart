@@ -7,11 +7,9 @@ class MessageSendRequest {
   final String message;
   final String receiverNumber;
 
-  MessageSendRequest({
-    required this.message,
-    required this.receiverNumber,
-  });
+  MessageSendRequest({required this.message, required this.receiverNumber});
 
-  factory MessageSendRequest.fromJson(Map<String, dynamic> json) => _$MessageSendRequestFromJson(json);
+  factory MessageSendRequest.fromJson(Map<String, dynamic> json) =>
+      _$MessageSendRequestFromJson(json);
   Map<String, dynamic> toJson() => _$MessageSendRequestToJson(this);
 }

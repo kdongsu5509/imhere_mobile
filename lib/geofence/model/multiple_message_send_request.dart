@@ -7,10 +7,9 @@ part 'multiple_message_send_request.g.dart';
 class MultipleMessageSendRequest {
   final List<MessageSendRequest> requests;
 
-  MultipleMessageSendRequest({
-    required this.requests,
-  });
+  MultipleMessageSendRequest({required this.requests});
 
-  factory MultipleMessageSendRequest.fromJson(Map<String, dynamic> json) => _$MultipleMessageSendRequestFromJson(json);
+  factory MultipleMessageSendRequest.fromJson(Map<String, dynamic> json) =>
+      _$MultipleMessageSendRequestFromJson(json);
   Map<String, dynamic> toJson() => _$MultipleMessageSendRequestToJson(this);
 }

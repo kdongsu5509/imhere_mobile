@@ -48,11 +48,16 @@ class SmsService {
         return false;
       }
 
-      ///TODO : change this part.
-      if(cleanPhoneNumbers.length == 1) {
-        return await _sendSingleSms(phoneNumber: cleanPhoneNumbers[0], message: message);
+      if (cleanPhoneNumbers.length == 1) {
+        return await _sendSingleSms(
+          phoneNumber: cleanPhoneNumbers[0],
+          message: message,
+        );
       } else {
-        return await _sendMultiSms(phoneNumbers: cleanPhoneNumbers, message: message);
+        return await _sendMultiSms(
+          phoneNumbers: cleanPhoneNumbers,
+          message: message,
+        );
       }
     } catch (e) {
       debugPrint('SMS 전송 실패: $e');
@@ -93,7 +98,10 @@ class SmsService {
     try {
       final response = await dio.post(
         _sendSmsToSingleApiPath,
-        data : MessageSendRequest(message: message, receiverNumber: phoneNumber).toJson()
+        data: MessageSendRequest(
+          message: message,
+          receiverNumber: phoneNumber,
+        ).toJson(),
       );
 
       final httpStatusCode = response.statusCode;
@@ -112,7 +120,6 @@ class SmsService {
     }
   }
 
-
   Future<bool> _sendMultiSms({
     required List<String> phoneNumbers,
     required String message,
@@ -120,15 +127,16 @@ class SmsService {
     final dio = getIt.get<Dio>();
 
     final List<MessageSendRequest> requests = [];
-    for(var phoneNumber in phoneNumbers) {
-      requests.add(MessageSendRequest(message: message, receiverNumber: phoneNumber));
+    for (var phoneNumber in phoneNumbers) {
+      requests.add(
+        MessageSendRequest(message: message, receiverNumber: phoneNumber),
+      );
     }
-
 
     try {
       final response = await dio.post(
-          _sendSmsToMultiApiPath,
-          data : MultipleMessageSendRequest(requests: requests).toJson()
+        _sendSmsToMultiApiPath,
+        data: MultipleMessageSendRequest(requests: requests).toJson(),
       );
 
       final httpStatusCode = response.statusCode;

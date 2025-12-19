@@ -8,9 +8,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iamhere/common/router/router_provider.dart';
 import 'package:iamhere/common/theme/im_here_theme_data_light.dart';
 import 'package:iamhere/core/di/di_setup.dart';
+import 'package:iamhere/core/firebase/firebase_service.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
-
-import 'firebase_init_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,16 +45,20 @@ class _ImHereAppState extends ConsumerState<ImHereApp> {
 
 Future<void> _initializeAppDependencies() async {
   final dotenvFileName = 'iam_here_flutter_secret.env';
-  final kakaoAppKeyName = 'KAKAO_NATIVE_APP_KEY';
   await dotenv.load(fileName: dotenvFileName);
-  // 의존성 주입 초기화
-  await configureDependencies();
-  // 카카오 로그인 초기화
-  KakaoSdk.init(nativeAppKey: dotenv.env[kakaoAppKeyName]);
-  // 네이버 지도 초기화
+
+  final firebaseService = FirebaseService();
+  await firebaseService.initialize();
+
+  final String? remoteUrl = firebaseService.remoteConfig.baseUrlOrNull;
+  final String fallbackUrl = 'http://localhost:8080';
+
+  final String finalBaseUrl = remoteUrl ?? fallbackUrl;
+
+  await configureDependencies(baseUrl: finalBaseUrl);
+
+  KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']);
   await _initializeFlutterNaverMap();
-  // Firebase 초기화 (Core + Messaging)
-  await initializeFirebase();
 }
 
 Future<void> _initializeFlutterNaverMap() async {
