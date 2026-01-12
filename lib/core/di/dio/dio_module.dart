@@ -1,23 +1,23 @@
 import 'package:dio/dio.dart';
-import 'package:injectable/injectable.dart';
 import 'package:iamhere/auth/service/token_storage_service.dart';
+import 'package:injectable/injectable.dart';
+
 import 'dio_auth_interceptor.dart';
 import 'pending_request.dart';
 import 'token_refresher.dart';
 
 @module
 abstract class DioModule {
-  @Named("baseUrl")
-  String get serverUrl => throw UnimplementedError();
-
   @lazySingleton
   Dio dio(TokenStorageService tokenStorage, @Named("baseUrl") String url) {
-    final dio = Dio(BaseOptions(
-      baseUrl: url,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-      headers: {'Content-Type': 'application/json'},
-    ));
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: url,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
 
     final refresher = TokenRefresher(tokenStorage, url);
     final retrier = RequestRetrier()..setDio(dio);
