@@ -49,7 +49,7 @@ android {
 
     defaultConfig {
         applicationId = "com.kdongsu5509.iamhere"
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = 36
         compileSdk = 36
 

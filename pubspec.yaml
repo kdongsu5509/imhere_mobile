@@ -13,7 +13,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # 카카오 로그인 SDK
-  kakao_flutter_sdk: ^1.9.7+3
+  kakao_flutter_sdk: ^1.10.0
   dio: ^5.9.0 # http 통신
   json_annotation: ^4.9.0 # JSON 직렬화
 
@@ -35,7 +35,7 @@ dependencies:
   riverpod_annotation: ^3.0.3
 
   # NAVER 지도 SDK
-  flutter_naver_map: ^1.4.1+1
+  flutter_naver_map: ^1.4.4
 
   # NATIVE 기능
   permission_handler: ^12.0.1 # 권한 관리자
@@ -84,7 +84,7 @@ flutter:
     - assets/images/
     - iam_here_flutter_secret.env
 
-# 배달의 민족에서 제공하는 폰트를 기본 폰트로 추가
+  # 배달의 민족에서 제공하는 폰트를 기본 폰트로 추가
   fonts:
     - family: BMHANNAPro
       fonts:
