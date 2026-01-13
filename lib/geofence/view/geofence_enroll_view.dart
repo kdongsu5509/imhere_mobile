@@ -152,7 +152,7 @@ class _GeofenceEnrollViewState extends ConsumerState<GeofenceEnrollView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 1. 지오펜스 이름 입력
-            const SectionTitle(title: '지오펜스 이름'),
+            const SectionTitle(title: '위치 알람 이름'),
             SizedBox(height: 8.h),
             TextInputField(
               controller: _nameController,
@@ -160,9 +160,9 @@ class _GeofenceEnrollViewState extends ConsumerState<GeofenceEnrollView> {
               icon: Icons.label_outline,
             ),
 
-            SizedBox(height: 32.h),
+            SizedBox(height: 16.h),
             // 2. 위치 설정
-            const SectionTitle(title: '위치 및 반경 설정'),
+            const SectionTitle(title: '위치 설정'),
             SizedBox(height: 8.h),
             SelectButton(
               label: formState.selectedLocation == null
@@ -175,7 +175,35 @@ class _GeofenceEnrollViewState extends ConsumerState<GeofenceEnrollView> {
             ),
 
             SizedBox(height: 16.h),
+            const SectionTitle(title: '반경 설정'),
             // 반경 설정
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 100.w,
+                  height: 65.h,
+                  color: Colors.red,
+                  child: Center(child: Text("250m")),
+                ),
+
+                Container(
+                  width: 100.w,
+                  height: 65.h,
+                  color: Colors.red,
+                  child: Center(child: Text("250m")),
+                ),
+
+                Container(
+                  width: 100.w,
+                  height: 65.h,
+                  color: Colors.red,
+                  child: Center(child: Text("250m")),
+                ),
+              ],
+            ),
+
+            Text("범위에 대한 추가적인 메시지 부분"),
             TextInputField(
               controller: _radiusController,
               hintText: '반경 (m) 예: 100',
@@ -183,9 +211,18 @@ class _GeofenceEnrollViewState extends ConsumerState<GeofenceEnrollView> {
               keyboardType: TextInputType.number,
             ),
 
-            SizedBox(height: 32.h),
             // 3. 알림 메시지 설정
-            const SectionTitle(title: '알림 설정 및 메시지'),
+            SizedBox(height: 16.h),
+            const SectionTitle(title: '전송할 메시지'),
+            TextInputField(
+              controller: _messageController,
+              hintText: '알림 메시지 예: 회사에 도착했습니다!',
+              icon: Icons.message_outlined,
+              maxLines: 3,
+            ),
+
+            SizedBox(height: 16.h),
+            const SectionTitle(title: '누구에게 알려줄까요?'),
             SizedBox(height: 8.h),
             SelectButton(
               label: formState.selectedRecipients.isEmpty
@@ -195,17 +232,10 @@ class _GeofenceEnrollViewState extends ConsumerState<GeofenceEnrollView> {
               onPressed: _openRecipientSelectScreen,
               isSelected: formState.selectedRecipients.isNotEmpty,
             ),
-            SizedBox(height: 16.h),
-            TextInputField(
-              controller: _messageController,
-              hintText: '알림 메시지 예: 회사에 도착했습니다!',
-              icon: Icons.message_outlined,
-              maxLines: 3,
-            ),
 
-            SizedBox(height: 48.h),
+            SizedBox(height: 32.h),
             // 4. 저장 버튼
-            PrimaryButton(text: '지오펜스 등록', onPressed: _saveGeofence),
+            PrimaryButton(text: '등록하기', onPressed: _saveGeofence),
           ],
         ),
       ),

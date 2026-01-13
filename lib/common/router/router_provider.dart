@@ -5,16 +5,17 @@ import 'package:iamhere/common/router/routers.dart';
 import 'package:iamhere/user_permission/view_model/user_permission_view_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'routing_logic.dart';
-
 part 'router_provider.g.dart';
 
 @Riverpod(keepAlive: true)
 GoRouter router(Ref ref) {
   return GoRouter(
     refreshListenable: _createNotifier(ref),
-    initialLocation: '/user-permission',
-    redirect: (context, state) => RouterLogic.handleRedirect(ref, state),
+
+    ///TODO : 작업 완료 후 제거하여야 합니다
+    // initialLocation: '/user-permission',
+    initialLocation: '/geofence',
+    // redirect: (context, state) => RouterLogic.handleRedirect(ref, state),
     routes: appRoutes,
     errorBuilder: (_, __) => const Center(child: Text("Page Not Found")),
   );
