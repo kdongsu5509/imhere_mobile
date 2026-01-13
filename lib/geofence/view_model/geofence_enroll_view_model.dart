@@ -1,5 +1,6 @@
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:iamhere/contact/view_model/contact.dart';
+import 'package:iamhere/geofence/utils/radius_helper.dart';
 import 'package:iamhere/geofence/view_model/geofence_view_model_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -20,6 +21,13 @@ class GeofenceEnrollFormState {
     this.selectedRecipients = const [],
     this.message = '',
   });
+
+  /// 현재 선택된 반경에 대한 안내 메시지
+  String get radiusInfoMessage {
+    final radiusValue = int.tryParse(radius);
+    if (radiusValue == null) return '';
+    return RadiusHelper.getRadiusInfoMessage(radiusValue);
+  }
 
   GeofenceEnrollFormState copyWith({
     String? name,

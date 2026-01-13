@@ -7,6 +7,8 @@ import 'package:iamhere/common/view_component/widgets/section_title.dart';
 import 'package:iamhere/common/view_component/widgets/select_button.dart';
 import 'package:iamhere/common/view_component/widgets/text_input_field.dart';
 import 'package:iamhere/contact/view_model/contact.dart';
+import 'package:iamhere/geofence/view/widget/radius_button.dart';
+import 'package:iamhere/geofence/view/widget/radius_info_callout.dart';
 import 'package:iamhere/geofence/view_model/geofence_enroll_view_model.dart';
 import 'package:iamhere/geofence/view_model/geofence_list_view_model.dart';
 
@@ -23,7 +25,6 @@ class GeofenceEnrollView extends ConsumerStatefulWidget {
 class _GeofenceEnrollViewState extends ConsumerState<GeofenceEnrollView> {
   // TextField 컨트롤러
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _radiusController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
 
   @override
@@ -31,7 +32,6 @@ class _GeofenceEnrollViewState extends ConsumerState<GeofenceEnrollView> {
     super.initState();
     // ViewModel 상태와 TextField 동기화
     _nameController.addListener(_onNameChanged);
-    _radiusController.addListener(_onRadiusChanged);
     _messageController.addListener(_onMessageChanged);
   }
 
@@ -39,12 +39,6 @@ class _GeofenceEnrollViewState extends ConsumerState<GeofenceEnrollView> {
     ref
         .read(geofenceEnrollViewModelProvider.notifier)
         .updateName(_nameController.text);
-  }
-
-  void _onRadiusChanged() {
-    ref
-        .read(geofenceEnrollViewModelProvider.notifier)
-        .updateRadius(_radiusController.text);
   }
 
   void _onMessageChanged() {
@@ -56,12 +50,17 @@ class _GeofenceEnrollViewState extends ConsumerState<GeofenceEnrollView> {
   @override
   void dispose() {
     _nameController.removeListener(_onNameChanged);
-    _radiusController.removeListener(_onRadiusChanged);
     _messageController.removeListener(_onMessageChanged);
     _nameController.dispose();
-    _radiusController.dispose();
     _messageController.dispose();
     super.dispose();
+  }
+
+  // 반경 선택 핸들러
+  void _onRadiusSelected(int radius) {
+    ref
+        .read(geofenceEnrollViewModelProvider.notifier)
+        .updateRadius(radius.toString());
   }
 
   // 지도 선택 화면으로 이동
@@ -176,40 +175,36 @@ class _GeofenceEnrollViewState extends ConsumerState<GeofenceEnrollView> {
 
             SizedBox(height: 16.h),
             const SectionTitle(title: '반경 설정'),
-            // 반경 설정
+            SizedBox(height: 8.h),
+            // 반경 선택 버튼
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  width: 100.w,
-                  height: 65.h,
-                  color: Colors.red,
-                  child: Center(child: Text("250m")),
+                RadiusButton(
+                  radius: 250,
+                  isSelected: formState.radius == '250',
+                  onTap: () => _onRadiusSelected(250),
                 ),
-
-                Container(
-                  width: 100.w,
-                  height: 65.h,
-                  color: Colors.red,
-                  child: Center(child: Text("250m")),
+                RadiusButton(
+                  radius: 500,
+                  isSelected: formState.radius == '500',
+                  onTap: () => _onRadiusSelected(500),
                 ),
-
-                Container(
-                  width: 100.w,
-                  height: 65.h,
-                  color: Colors.red,
-                  child: Center(child: Text("250m")),
+                RadiusButton(
+                  radius: 1000,
+                  isSelected: formState.radius == '1000',
+                  onTap: () => _onRadiusSelected(1000),
                 ),
               ],
             ),
 
-            Text("범위에 대한 추가적인 메시지 부분"),
-            TextInputField(
-              controller: _radiusController,
-              hintText: '반경 (m) 예: 100',
-              icon: Icons.social_distance_outlined,
-              keyboardType: TextInputType.number,
-            ),
+            // 반경에 따른 안내 메시지
+            if (formState.radiusInfoMessage.isNotEmpty)
+              SizedBox(height: 12.h),
+            if (formState.radiusInfoMessage.isNotEmpty)
+              RadiusInfoCallout(
+                message: formState.radiusInfoMessage,
+              ),
 
             // 3. 알림 메시지 설정
             SizedBox(height: 16.h),
