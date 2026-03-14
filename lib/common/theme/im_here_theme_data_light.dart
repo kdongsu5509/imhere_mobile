@@ -34,7 +34,8 @@ final ThemeData lightTheme = ThemeData(
   fontFamily: 'BMHANNAAir',
   textTheme: const TextTheme(
     headlineLarge: TextStyle(
-      fontFamily: 'BMDOHYEON',
+      fontFamily: 'GmarketSans',
+      fontWeight: FontWeight.w700,
       color: Color(0xFF007AFF),
       fontSize: 28,
     ),
@@ -42,6 +43,7 @@ final ThemeData lightTheme = ThemeData(
       fontFamily: 'BMJUA',
       fontWeight: FontWeight.w400,
       color: Color(0xFF1F2937),
+      fontSize: 22,
     ),
     bodyLarge: TextStyle(
       fontFamily: 'BMHANNAAir',
@@ -62,7 +64,7 @@ final ThemeData lightTheme = ThemeData(
       elevation: 0,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      textStyle: const TextStyle(fontFamily: 'BMJUA', fontSize: 16),
+      textStyle: const TextStyle(fontFamily: 'BMJUA', fontSize: 18),
     ),
   ),
 );
