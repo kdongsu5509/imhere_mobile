@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iamhere/auth/service/auth_state_provider.dart';
 import 'package:iamhere/common/router/routers.dart';
+import 'package:iamhere/common/router/routing_logic.dart';
 import 'package:iamhere/user_permission/view_model/user_permission_view_model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -13,9 +14,9 @@ GoRouter router(Ref ref) {
     refreshListenable: _createNotifier(ref),
 
     ///TODO : 작업 완료 후 제거하여야 합니다
-    // initialLocation: '/user-permission',
-    initialLocation: '/geofence',
-    // redirect: (context, state) => RouterLogic.handleRedirect(ref, state),
+    initialLocation: '/user-permission',
+    // initialLocation: '/geofence',
+    redirect: (context, state) => RouterLogic.handleRedirect(ref, state),
     routes: appRoutes,
     errorBuilder: (_, __) => const Center(child: Text("Page Not Found")),
   );
